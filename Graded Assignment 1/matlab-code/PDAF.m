@@ -30,7 +30,7 @@ classdef PDAF
             % xp (n x 1): predicted mean
             % Pp (n x n): predicted covariance
             
-            [xp, Pp] = obj.ekf.predict(x, P, Ts); %...
+            [xp, Pp] = obj.ekf.predict(x, P, Ts);
         end
         
         function gated = gate(obj, Z, x, P)
@@ -48,12 +48,12 @@ classdef PDAF
             
             for j = 1:m
                 [vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
-                gated(j) = vk' * Sk \ vk <= gSquared; %...
+                gated(j) = (vk' / Sk) * vk < gSquared;
             end
         end
         
         function ll = loglikelihoodRatios(obj, Z, x, P)
-            % Calculates the poseterior event loglikelihood ratios.
+            % Calculates the posterior event loglikelihood ratios.
             %
             % Z (dim(z) x m): measurements to use in likelihoods
             % x (n x 1): state mean
@@ -76,13 +76,14 @@ classdef PDAF
             ll(1) = logPND + logClutter; 
             for j = 1:m
                 [vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
-                llCond(j) = obj.ekf.loglikelihood(Z(:, j), Z(:, j) - vk, Sk); %... %l^a
-                ll(j + 1) = logPD + llCond(j); %...
+                %llCond(j) = obj.ekf.loglikelihood(Z(:, j), Z(:, j) - vk, Sk);
+                llCond(j) = log(mvnpdf(Z(:, j), Z(:, j) - vk, Sk));
+                ll(j + 1) = logPD + llCond(j);
             end
         end
         
         function beta = associationProbabilities(obj, Z, x, P)
-            % calculates the poseterior event/association probabilities
+            % calculates the posterior event/association probabilities
             % 
             % Z (dim(z) x m): measurements ot use to get probabilities
             % x (n x 1): state mean
@@ -95,7 +96,7 @@ classdef PDAF
            lls = obj.loglikelihoodRatios(Z, x, P);
            
            % probabilities
-           beta = exp(lls) / logSumExp(lls); %... 
+           beta = exp(lls)/sum(exp(lls)); 
         end
         
         function [xupd, Pupd] = conditionalUpdate(obj, Z, x, P)
@@ -121,8 +122,8 @@ classdef PDAF
             Pupd(:, :, 1) = P;
             
             % detected
-            for j = 1:m 
-               [xupd(:, j + 1), Pupd(:, :, j + 1)] = obj.ekf.update(Z(:, j), x, P); %...
+            for j = 1:m
+               [xupd(:, j + 1), Pupd(:, :, j + 1)] = obj.ekf.update(Z(:, j), x, P);
             end
         end
         
@@ -136,7 +137,7 @@ classdef PDAF
             % xred (n x 1): the mean of the mixture
             % Pred (n x n): the covariance of the mixture
             
-            [xred, Pred] = reduceGaussMix(beta, x, P); %... % Hint: reduceGaussMix from assignment 3
+            [xred, Pred] = reduceGaussMix(beta, x, P);
         end
         
         function [xupd, Pupd] = update(obj, Z, x, P)
@@ -150,17 +151,17 @@ classdef PDAF
             % Pupd (n x n): the covariance of the PDAF update
             
             % remove the not gated measurements from consideration
-            gated = obj.gate(Z, x, P); % ... 
+            gated = obj.gate(Z, x, P);
             Zg = Z(:, gated);
             
             % find association probabilities
-            beta = obj.associationProbabilities(Zg, x, P); % ...
+            beta = obj.associationProbabilities(Zg, x, P);
             
             % find the mixture components pdfs
-            [xcu, Pcu] = obj.conditionalUpdate(Zg, x, P); %...
+            [xcu, Pcu] = obj.conditionalUpdate(Zg, x, P);
             
             % reduce mixture
-            [xupd, Pupd] = obj.reduceMixture(beta, xcu, Pcu); %...
+            [xupd, Pupd] = obj.reduceMixture(beta, xcu, Pcu);
         end
     end
 end
