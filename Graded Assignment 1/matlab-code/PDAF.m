@@ -47,8 +47,8 @@ classdef PDAF
             gSquared = obj.gateSize;
             
             for j = 1:m
-                [vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
-                gated(j) = (vk' / Sk) * vk < gSquared;
+                % [vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
+                gated(j) = obj.ekf.NIS(Z(:,j), x, P) <= gSquared;
             end
         end
         
@@ -96,7 +96,7 @@ classdef PDAF
            lls = obj.loglikelihoodRatios(Z, x, P);
            
            % probabilities
-           beta = exp(lls)/sum(exp(lls)); 
+           beta = exp(lls - logSumExp(lls));
         end
         
         function [xupd, Pupd] = conditionalUpdate(obj, Z, x, P)
