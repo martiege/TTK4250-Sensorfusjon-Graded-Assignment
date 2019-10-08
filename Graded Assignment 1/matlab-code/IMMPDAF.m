@@ -78,10 +78,12 @@ classdef IMMPDAF
             ll = zeros(m + 1, 1);
             
             % calculate log likelihood ratios
-            ll(1) = % association loglikelihood ratio for no detection
+            ll(1) = logPND + logClutter; % association loglikelihood ratio for no detection
             for j = 1:m
-                llCond(j) = %... calculate imm loglikelihood
-                ll(j + 1) = %... association loglikelihood ratio for detection j
+                [~, ~, ~, llCond(j)] = ...
+                    update(obj, Z, sprobs, x, P);
+                % llCond(j) = %... calculate imm loglikelihood
+                ll(j + 1) = logPD + llCond(j);  %... association loglikelihood ratio for detection j
             end
         end
         
