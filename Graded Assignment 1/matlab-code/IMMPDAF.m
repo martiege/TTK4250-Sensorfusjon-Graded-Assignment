@@ -128,6 +128,7 @@ classdef IMMPDAF
             Pupd = zeros([size(P), m + 1]);
             
             % undetected 
+            % is this correct? where is lambda??
             sprobsupd(:, 1) = sprobs; %... 
             xupd(:, :, 1) = x; %...
             Pupd(:, :, :, 1) = P; %...
@@ -153,16 +154,17 @@ classdef IMMPDAF
             
             M = size(sprobs, 1);
             
-            joint = %.. Joint probability for mode and association (M x m + 1)
-            sprobsred = %... marginal mode probabilities (M x 1)
-            betaCondS = %... association probabilites conditionend on the mode probabilites (M x m + 1)
+            % 
+            joint = sprobs * diag(beta); %.. Joint probability for mode and association (M x m + 1)
+            sprobsred = sum(joint, 2); %... marginal mode probabilities (M x 1)
+            betaCondS = joint ./ sprobsred; %... association probabilites conditionend on the mode probabilites (M x m + 1)
             
             xSize = size(x);
             PSize = size(P);
             xred = zeros(xSize(1:2));
             Pred = zeros(PSize(1:3));
             for s = 1:M
-                [xred(:, s), Pred(:, : ,s)] = %... mean and variance per mode
+                [xred(:, s), Pred(:, : ,s)] = reduceGaussMix(betaCondS(s, :), x(:, s, :), P(:, :, s, :)); %... mean and variance per mode
             end
         end
         
