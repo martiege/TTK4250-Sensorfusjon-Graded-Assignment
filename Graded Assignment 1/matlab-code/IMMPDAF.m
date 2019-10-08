@@ -81,7 +81,7 @@ classdef IMMPDAF
             ll(1) = logPND + logClutter; % association loglikelihood ratio for no detection
             for j = 1:m
                 [~, ~, ~, llCond(j)] = ...
-                    update(obj, Z, sprobs, x, P);
+                    obj.imm.update(Z(:, j), sprobs, x, P);
                 % llCond(j) = %... calculate imm loglikelihood
                 ll(j + 1) = logPD + llCond(j);  %... association loglikelihood ratio for detection j
             end
@@ -136,7 +136,7 @@ classdef IMMPDAF
             % detected
             for j = 1:m 
                [sprobsupd(:, j + 1), xupd(:, :, j + 1), Pupd(:, :, :, j + 1), ~] = ...
-                   obj.imm.update(Z(:, j), sprobs, x, P)%... update conditioned on measurement j
+                   obj.imm.update(Z(:, j), sprobs, x, P); %... update conditioned on measurement j
             end
         end
         
@@ -193,7 +193,6 @@ classdef IMMPDAF
             % reduce mixture
             % ???
             [sprobsupd, xupd, Pupd] = obj.reduceMixture(beta, sprobscu, xcu, Pcu); %...
-            [sprobsupd, xupd, Pupd] = reduceGaussMix(sprobsupd, xupd, Pupd);
         end
     end
 end

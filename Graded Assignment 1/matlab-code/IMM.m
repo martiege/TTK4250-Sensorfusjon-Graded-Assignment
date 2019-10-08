@@ -54,7 +54,7 @@ classdef IMM
            
            % mix for each mode, 
            for i = 1:obj.M
-               [xmix(:, i), Pmix(:, :, i)] = reduceGaussMix(smixprobs(i, :), x(:, i), P(:, :, i));
+               [xmix(:, i), Pmix(:, :, i)] = reduceGaussMix(smixprobs(i, :), x, P);
            end
        end
        
@@ -72,8 +72,9 @@ classdef IMM
            Ppred = zeros(size(P));
            
            % mode matched prediction
-           for i = 1:obj.M
-               [xpred(:, i), Ppred(:,:, i)] = obj.modeFilters{i}.predict(x, P, Ts);
+           for s = 1:obj.M
+               [xpred(:, s), Ppred(:, :, s)] = ...
+                   obj.modeFilters{s}.predict(x(:, s), P(:, :, s), Ts);
            end
        end
        
@@ -114,9 +115,10 @@ classdef IMM
            logLambdas = zeros(obj.M, 1);
            
            % mode matched update and likelihood
-           for i = 1:obj.M
-               [xupd(:, i), Pupd(:,:, i)] = obj.modeFilters{i}.update(z, x, P);
-               logLambdas = obj.modeFilters{i}.loglikelihood(z, x, P);
+           for s = 1:obj.M
+               filter = obj.modeFilters{s};
+               [xupd(:, s), Pupd(:, :, s)] = filter.update(z, x(:, s), P(:,:, s));
+               logLambdas(s) = filter.loglikelihood(z, x(:, s), P(:, :, s));
            end
        end
        
@@ -130,10 +132,10 @@ classdef IMM
            % loglikelihood: measurement log likelilhood (total, ie. p(z_k | z_(1:k-1)))
            
            % ... % you might want to do some precalculations here.
-           logSporbs = log(sprobs);
+           supdprobs = logLambdas (:) + log(sprobs (:));
            
-           loglikelihood = logSumExp(logLambdas + logSporbs); % ... % you might want to use the logSumExp function at the bottom of this file
-           supdprobs = exp(logLambdas + logSporbs - loglikelihood); % ...
+           loglikelihood = logSumExp(supdprobs);
+           supdprobs = exp(supdprobs  - loglikelihood);
        end
        
        function [supdprobs, xupd, Pupd, loglikelihood] = update(obj, z, sprobs, x, P)
