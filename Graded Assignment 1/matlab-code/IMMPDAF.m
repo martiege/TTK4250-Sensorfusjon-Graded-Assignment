@@ -32,7 +32,7 @@ classdef IMMPDAF
             % xp (n x M): predicted means
             % Pp (n x n x M): predicted covariances
             
-            [sprobsp, xp, Pp] = %... 
+            [sprobsp, xp, Pp] = obj.imm.predict(sprobs, x, P, Ts); 
         end
         
         function gated = gate(obj, Z, sprobs, x, P)
