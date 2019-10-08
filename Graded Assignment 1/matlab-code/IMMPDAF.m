@@ -102,7 +102,7 @@ classdef IMMPDAF
            lls = obj.loglikelihoodRatios(Z, sprobs, x, P);
            
            % probabilities
-           beta = exp(lls)/sum(exp(lls)); %... 
+           beta = exp(lls - logSumExp(lls)); %... 
         end
         
         function [sprobsupd, xupd, Pupd] = conditionalUpdate(obj, Z, sprobs, x, P)
