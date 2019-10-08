@@ -49,9 +49,10 @@ classdef IMMPDAF
             m = size(Z, 2);
             gated = false(m, 1);
             gSquared = obj.gateSize;
+            
             for j = 1:m
-                [NIS, NISes] = obj.imm.NIS(Z(:,j), sprobs, x, P); 
-                gated(j) = %...
+                [~, NISes] = obj.imm.NIS(Z(:,j), sprobs, x, P); 
+                gated(j) = any(NISes <= gSquared); %...
             end
         end
         
