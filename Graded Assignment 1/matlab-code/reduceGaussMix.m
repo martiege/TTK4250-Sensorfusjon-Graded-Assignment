@@ -20,7 +20,7 @@ function [xmix, Pmix] = reduceGaussMix(w, x, P)
     
     % mean
     for i = 1:M
-        xmix = xmix + w(i) * x(i);
+        xmix = xmix + x(:, i) * w(i);
     end
     
     % covariance
