@@ -75,9 +75,9 @@ classdef PDAF
             % calculate log likelihood ratios
             ll(1) = logPND + logClutter; 
             for j = 1:m
-                [vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
+                %[vk, Sk] = obj.ekf.innovation(Z(:, j), x, P);
                 %llCond(j) = obj.ekf.loglikelihood(Z(:, j), Z(:, j) - vk, Sk);
-                llCond(j) = log(mvnpdf(Z(:, j), Z(:, j) - vk, Sk));
+                llCond(j) = obj.ekf.loglikelihood(Z(:, j), x, P);
                 ll(j + 1) = logPD + llCond(j);
             end
         end
