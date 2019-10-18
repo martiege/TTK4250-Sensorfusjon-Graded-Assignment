@@ -33,10 +33,10 @@ classdef IMM
            spsjointprobs = obj.PI .* (ones(obj.M, 1) * sprobs(:)'); % ...
            
            % marginal probability for next model
-           spredprobs = sum(spsjointprobs, 2); % ...
+           spredprobs = sum(spsjointprobs, 2);
            
            % conditionional probability for model at this time step on the next.
-           smixprobs = spsjointprobs ./ (spredprobs * ones(1, obj.M)); % ...
+           smixprobs = spsjointprobs ./ (spredprobs * ones(1, obj.M)); 
        end
        
        function [xmix, Pmix] = mixStates(obj, smixprobs, x, P)
@@ -90,13 +90,13 @@ classdef IMM
            % Ppred (dim(state) x dim(state) x M): predicted covariances
            
            % step 1
-           [sprobspred, smixprobs] = obj.mixProbabilities(sprobs); % ...
+           [sprobspred, smixprobs] = obj.mixProbabilities(sprobs); 
            
            % step 2
-           [xmix, Pmix] = obj.mixStates(smixprobs, x, P); % ...
+           [xmix, Pmix] = obj.mixStates(smixprobs, x, P); 
            
            % prediction part of step 3
-           [xpred, Ppred] = obj.modeMatchedPrediction(xmix, Pmix, Ts); % ...
+           [xpred, Ppred] = obj.modeMatchedPrediction(xmix, Pmix, Ts); 
        end
        
        function [xupd, Pupd, logLambdas] = modeMatchedUpdate(obj, z, x, P)
@@ -131,8 +131,7 @@ classdef IMM
            % supdprobs (M x 1): updated mode probabilities
            % loglikelihood: measurement log likelilhood (total, ie. p(z_k | z_(1:k-1)))
            
-           % ... % you might want to do some precalculations here.
-           supdprobs = logLambdas (:) + log(sprobs (:));
+           supdprobs = logLambdas(:) + log(sprobs(:));
            
            loglikelihood = logSumExp(supdprobs);
            supdprobs = exp(supdprobs  - loglikelihood);
@@ -152,10 +151,10 @@ classdef IMM
            % loglikelihood: measurement log likelilhood (total, ie. p(z_k | z_(1:k-1)))
            
            % update part of step 3
-           [xupd, Pupd, logLambdas] = obj.modeMatchedUpdate(z, x, P); % ...
+           [xupd, Pupd, logLambdas] = obj.modeMatchedUpdate(z, x, P); 
            
            % step 4
-           [supdprobs, loglikelihood] = obj.updateProbabilities(logLambdas, sprobs); % ...
+           [supdprobs, loglikelihood] = obj.updateProbabilities(logLambdas, sprobs); 
        end
        
        function [xest, Pest] = estimate(obj, sprobs, x, P)

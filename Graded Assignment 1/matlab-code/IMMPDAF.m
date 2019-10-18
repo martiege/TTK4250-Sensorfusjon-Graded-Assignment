@@ -52,7 +52,7 @@ classdef IMMPDAF
             
             for j = 1:m
                 [~, NISes] = obj.imm.NIS(Z(:,j), sprobs, x, P); 
-                gated(j) = any(NISes <= gSquared); %...
+                gated(j) = any(NISes <= gSquared); 
             end
         end
         
@@ -74,7 +74,7 @@ classdef IMMPDAF
             logClutter = log(obj.clutterRate);
             
             % allocate
-            llCond = zeros(m, 1); % log(l^a),
+            llCond = zeros(m, 1); 
             ll = zeros(m + 1, 1);
             
             % calculate log likelihood ratios
@@ -82,8 +82,7 @@ classdef IMMPDAF
             for j = 1:m
                 [~, ~, ~, llCond(j)] = ...
                     obj.imm.update(Z(:, j), sprobs, x, P);
-                % llCond(j) = %... calculate imm loglikelihood
-                ll(j + 1) = logPD + llCond(j);  %... association loglikelihood ratio for detection j
+                ll(j + 1) = logPD + llCond(j); 
             end
         end
         
@@ -102,7 +101,7 @@ classdef IMMPDAF
            lls = obj.loglikelihoodRatios(Z, sprobs, x, P);
            
            % probabilities
-           beta = exp(lls - logSumExp(lls)); %... 
+           beta = exp(lls - logSumExp(lls)); 
         end
         
         function [sprobsupd, xupd, Pupd] = conditionalUpdate(obj, Z, sprobs, x, P)
@@ -128,15 +127,14 @@ classdef IMMPDAF
             Pupd = zeros([size(P), m + 1]);
             
             % undetected 
-            % is this correct? where is lambda??
-            sprobsupd(:, 1) = sprobs; %... 
-            xupd(:, :, 1) = x; %...
-            Pupd(:, :, :, 1) = P; %...
+            sprobsupd(:, 1) = sprobs; 
+            xupd(:, :, 1) = x; 
+            Pupd(:, :, :, 1) = P; 
             
             % detected
             for j = 1:m 
                [sprobsupd(:, j + 1), xupd(:, :, j + 1), Pupd(:, :, :, j + 1), ~] = ...
-                   obj.imm.update(Z(:, j), sprobs, x, P); %... update conditioned on measurement j
+                   obj.imm.update(Z(:, j), sprobs, x, P); 
             end
         end
         
@@ -153,18 +151,18 @@ classdef IMMPDAF
             % Pred (n x n x M): the covariance of the mode mixtures
             
             M = size(sprobs, 1);
+            m_p1 = size(sprobs, 2);
             
-            % 
-            joint = sprobs * diag(beta); %.. Joint probability for mode and association (M x m + 1)
-            sprobsred = sum(joint, 2); %... marginal mode probabilities (M x 1)
-            betaCondS = joint ./ sprobsred; %... association probabilites conditionend on the mode probabilites (M x m + 1)
+            joint = sprobs .* (ones(M, 1) * beta'); % Joint probability for mode and association (M x m + 1)
+            sprobsred = sum(joint, 2); % marginal mode probabilities (M x 1)
+            betaCondS = joint ./ (sprobsred * ones(1, m_p1)); % association probabilites conditionend on the mode probabilites (M x m + 1)
             
             xSize = size(x);
             PSize = size(P);
             xred = zeros(xSize(1:2));
             Pred = zeros(PSize(1:3));
             for s = 1:M
-                [xred(:, s), Pred(:, : ,s)] = reduceGaussMix(betaCondS(s, :), x(:, s, :), P(:, :, s, :)); %... mean and variance per mode
+                [xred(:, s), Pred(:, : ,s)] = reduceGaussMix(betaCondS(s, :), x(:, s, :), P(:, :, s, :)); % mean and variance per mode
             end
         end
         
@@ -181,18 +179,17 @@ classdef IMMPDAF
             % Pupd (n x n): the covariance of the PDAF update
             
             % remove the not gated measurements from consideration
-            gated = obj.gate(Z, sprobs, x, P); %...
+            gated = obj.gate(Z, sprobs, x, P); 
             Zg = Z(:, gated);
             
             % find association probabilities
-            beta = obj.associationProbabilities(Zg, sprobs, x, P); %...
+            beta = obj.associationProbabilities(Zg, sprobs, x, P); 
             
             % find the mixture components (conditional update)
-            [sprobscu, xcu, Pcu] = obj.conditionalUpdate(Zg, sprobs, x, P); %...
+            [sprobscu, xcu, Pcu] = obj.conditionalUpdate(Zg, sprobs, x, P); 
             
             % reduce mixture
-            % ???
-            [sprobsupd, xupd, Pupd] = obj.reduceMixture(beta, sprobscu, xcu, Pcu); %...
+            [sprobsupd, xupd, Pupd] = obj.reduceMixture(beta, sprobscu, xcu, Pcu); 
         end
     end
 end
