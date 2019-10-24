@@ -2,8 +2,8 @@
 load joyridedata.mat;
 
 plot_nearby_measurements = false;
-plot_estimate = true;
-plot_estimate_and_measurements = false;
+plot_estimate = false;
+plot_estimate_and_measurements = true;
 plot_estimate_vs_gt = false;
 print_probability = true;
 print_error = false;
@@ -11,9 +11,9 @@ plot_nees = false;
 
 
 % plot measurements close to the trajectory
+Zmat = cell2mat(Z');
 if plot_nearby_measurements
     figure(1); clf; hold on; grid on;
-    Zmat = cell2mat(Z');
     Zplotdata = [];
     plotMeasDist = 200;
     for k = 1:K
@@ -200,14 +200,14 @@ meanNumberOfCloseMeasurements = mean(closecount)
 
 % sensor 
 r = 8^2; %...
-PD = 0.96; %...
+PD = 0.961; %...
 lambda = 1e-3; %...
 gateSize = 10^2; %...
 
 % dynamic models
-qCV = 7.8e-3; %...
-qCT = [2e-2, 5e-5]; %...
-qCVh = 5e-2; %...
+qCV = 7.8e-4; %...
+qCT = [2e-3, 5e-5]; %...
+qCVh = 5e0; %...
 modIdx = 1:3; 
 M = numel(modIdx);
 
@@ -216,23 +216,20 @@ P0 = diag([25, 25, 10, 10, pi/6].^2); % seems reasonable?
 
 
 % markov chain (other parameterizations can be simpler to tune)
-PI11 = 0.9; %...
-PI22 = 0.99; %...
-PI33 = 0.5; %...
+PI11 = 0.90; %...
+PI22 = 0.91; %...
+PI33 = 0.86; %...
 
-PI = [PI11,         (1 - PI22)/2,   (1 - PI33/2); 
-      (1 - PI11)/2, PI22,           (1 - PI33/2); 
+PI = [PI11,         (1 - PI22)/2,   (1 - PI33)/2; 
+      (1 - PI11)/2, PI22,           (1 - PI33)/2; 
       (1 - PI11)/2, (1 - PI22)/2,   PI33]; 
 
-% PI = [0.8696, 0.0270, 0.0370; 
-%       0.0870, 0.4865, 0.2222;
-%       0.0435, 0.4865, 0.7407]; 
 
 PI = PI(modIdx, modIdx) % select the models to use
 PI = PI./sum(PI,1); % be sure to normalize
 assert(all(sum(PI, 1) - 1 < eps),'columns of PI must sum to 1')
 
-sprobs0 = [1, 0.1, 0.1]; %... 
+sprobs0 = [1, 0.5, 0.5]; %... 
 sprobs0 = sprobs0(modIdx)/sum(sprobs0(modIdx)) % select models and normalize
 assert(all(sprobs0 > 0), 'probabilities must be positive')
 
@@ -325,8 +322,8 @@ if plot_estimate_and_measurements
     end
     plot(xest(1,k_start:K), xest(2,k_start:K), "Color", colours(i_start, :));
     
-    plot(Xgt(1, :), Xgt(2, :));
-    scatter(Zmat(1,:), Zmat(2,:))
+    plot(Xgt(1, :), Xgt(2, :), '--', "Color", [255,140,0]/255);
+    scatter(Zmat(1,:), Zmat(2,:), "MarkerEdgeColor", [255,140,0]/255)
     axis('equal')
     title(sprintf('posRMSE = %.3f, velRMSE = %.3f, peakPosDev = %.3f, peakVelDev = %.3f',posRMSE, velRMSE, peakPosDeviation, peakVelDeviation))
 end
@@ -355,7 +352,7 @@ if print_probability
     hold on;
     for s = modIdx
         hold on;
-       plot(probhat(s, :)',  "Color", colours(s, :)); 
+        plot(probhat(s, :)',  "Color", colours(s, :)); 
     end
     hold off;
     % plot(probhat', "Color", colours');
@@ -405,7 +402,7 @@ play_estimation_movie = 0;
 if play_estimation_movie
     mTL = 0.2; % maximum transparancy (between 0 and 1);
     plotpause = 1; % lenght to pause between time steps;
-    plotRange = 10:30; % 2:K; % the range to go through
+    plotRange = 2:140; % 2:K; % the range to go through
     N = 50; % number of points to use for ellipse;
 
     %k = 31; assert(all([k > 1, k <= K]), 'K must be in proper range')
@@ -439,6 +436,7 @@ if play_estimation_movie
             end
 
             [vk, Sk] = imm.modeFilters{s}.innovation([0,0], squeeze(xbar(:, s, k)), squeeze(Pbar(:, :, s, k)));
+            Sk
             gateData = chol(Sk)' * [cos(thetas); sin(thetas)] * sqrt(tracker.gateSize) + squeeze(xbar(1:2, s, k));
             plot(gateData(1, :),gateData(2, :), '.--', 'Color', co(s,:))
             scatter(Z{k}(1, :), Z{k}(2, :), 'rx')
