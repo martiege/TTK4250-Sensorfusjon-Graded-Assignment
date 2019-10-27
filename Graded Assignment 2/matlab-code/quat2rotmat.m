@@ -3,5 +3,5 @@ function R = quat2rotmat(quat)
     e = quat(2:4);
     S = crossProdMat(e);
     
-    R = %
+    R = eye(3) + 2 * eta * S + 2 * S * S;
 end

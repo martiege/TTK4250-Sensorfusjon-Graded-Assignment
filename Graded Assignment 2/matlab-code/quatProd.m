@@ -8,5 +8,14 @@ function qprod = quatProd(ql, qr)
         qr = [0; qr];
     end
     
-    qprod = %
+    nl = ql(1);
+    el = ql(2:4);
+    
+    nr = qr(1);
+    er = qr(2:4);
+    
+    nprod = nl * nr - el' * er;
+    eprod = nr * el + nl * er + crossProdMat(el) * er;
+    
+    qprod = [nprod; eprod];
 end
