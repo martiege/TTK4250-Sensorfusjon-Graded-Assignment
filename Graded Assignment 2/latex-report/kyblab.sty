@@ -1,0 +1,42 @@
+\ProvidesPackage{kyblab}
+
+% Search http://ctan.org or type texdoc <package name> in a terminal to access LaTeX package documentation.
+\usepackage{babel} % babel and csquotes are packages for multilingual (e.g. Norwegian) support.
+\usepackage[T1]{fontenc} % See http://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
+\usepackage[utf8]{inputenc} % See http://tex.stackexchange.com/questions/44694/fontenc-vs-inputenc
+\usepackage{csquotes} % Needs to be loaded after inputenc.
+\usepackage{amsmath} % See: http://tex.stackexchange.com/questions/32100/what-does-each-ams-package-do
+\usepackage{amssymb} % See above.
+\usepackage[squaren]{SIunits} % Provides SI units like \meter. The squaren option is due to a conflict with amssymb.
+\usepackage{graphicx} % Provides the \includegraphics command.
+\usepackage{booktabs} % Better tables. Provides \toprule, \midrule, \bottomrule.
+\usepackage{listings} % Provides source code listings.
+\usepackage{todonotes} % Provides several handy TODO commands.
+\usepackage[
+  backend=bibtex,
+  style=numeric,
+  isbn=false,
+  doi=false]{biblatex} % http://tex.stackexchange.com/questions/25701/bibtex-vs-biber-and-biblatex-vs-natbib
+\usepackage{hyperref} % Provides clickable links. Always load last, but before cleveref.
+\usepackage{cleveref} % Provides the \Cref command, for cross-referencing of equations, sections, figures and tables. Always load last.
+
+
+% ``listings'' package settings
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{pink}{rgb}{0.63, 0.13, 0.94}
+\lstset{language=Matlab, 
+	keywords={break, case, catch, continue,else,elseif,end,for,function,
+		global,if,otherwise,persistent,return,switch,try,while},
+	basicstyle=\ttfamily,
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{pink},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=10pt,
+	backgroundcolor=\color{white},
+	tabsize=4,
+	showspaces=false,
+        showstringspaces=false}
