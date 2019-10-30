@@ -252,7 +252,7 @@ classdef ESKF
                 v = v - R * leverarm;
             end
             
-            S = H(:, 1:15) * P * H(:, 1:15)' + RGNSS; % Innovation covariance
+            S = H * P * H' + RGNSS; % Innovation covariance
         end
         
         function [xinjected, Pinjected] = updateGNSS(obj, xnom, P, zGNSSpos, RGNSS, leverarm)
@@ -286,9 +286,9 @@ classdef ESKF
             end
             
             % KF error state update
-            W = P * H(:, 1:15)' / S; % Kalman gain
+            W = P * H' / S; % Kalman gain
             deltaX = W * innov; 
-            Pupd = (I - W * H(:, 1:15)) * P; 
+            Pupd = (I - W * H) * P; 
             
             % error state injection
             [xinjected, Pinjected] = obj.inject(xnom, deltaX, Pupd); 

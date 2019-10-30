@@ -14,7 +14,7 @@ pAcc = 1; % accelerometer bias reciprocal time constant
 
 qG = 1^2; % gyro measurement noise covariance
 qGb = 1^2;  % gyro bias driving noise covariance
-pGyro = 1; % gyro bias reciprocal time constant
+pGyro = 1; % gyrp bias reciprocal time constant
 
 
 %% Estimator
@@ -46,8 +46,8 @@ GNSSk = 1;
 for k = 1:N
     if  timeIMU(k) >= timeGNSS(GNSSk)
         % est or pred? 
-        NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(GNSSk), RGNSS, leverarm);
-        [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(GNSSk), RGNSS, leverarm);
+        NIS(GNSSk) = eskf.NISGNSS(xest(:, k), P, zGNSSpos, RGNSSpos, leverarm);
+        [xest(:, k), Pest(:, :, k)] = ...;
         GNSSk = GNSSk  + 1;
         
         % sanity check, remove for some minor speed
@@ -56,16 +56,16 @@ for k = 1:N
         end
         
     else % no updates so estimate = prediction
-        xest(:, k) = xpred(:, k);
-        Pest(:, :, k) = Ppred(:, :, k);
+        xest(:, k) = ... ;
+        Pest(:, :, k) = ... ;
     end
     
-    deltaX(:, k) = eskf.deltaX(xest(:, k), xtrue(:, k));
+    deltaX(:, k) = ...;
     [NEES(:, k), NEESpos(:, k), NEESvel(:, k), NEESatt(:, k), NEESaccbias(:, k), NEESgyrobias(:, k)] = ...
-        eskf.NEES(xest(:, k), Pest(:, :, k), xtrue(:, k));
+        ...;
     
     if k < N
-        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
+        [xpred(:, k+1),  Ppred(:, :, k+1)] = ...;
         % sanity check, remove for speed
         if any(any(~isfinite(Ppred(:, :, k + 1))))
            error('not finite Ppred at time %d', k + 1)
