@@ -156,8 +156,8 @@ classdef ESKF
             VanLoanMat = expm(V); % can potentially be slow
              
             % exctract relevat matrices.
-            Ad = VanLoanMat(16:30, 16:30)'; % why not transpose??? 
-            GQGd = Ad * VanLoanMat(1:15, 16:30);
+            Ad = VanLoanMat(16:30, 16:30); % why not transpose??? 
+            GQGd = Ad' * VanLoanMat(1:15, 16:30);
         end
         
         function Ppred = predictCovariance(obj, xnom, P, acc, omega, Ts)
@@ -324,7 +324,7 @@ classdef ESKF
            
            % pos and vel
            deltaPos = xtrue(1:3) - xnom(1:3);
-           deltaVel = xtrue(4:6) - xtrue(4:6);
+           deltaVel = xtrue(4:6) - xnom(4:6);
            
             % attitude (just some suggested steps, you are free to change)
            qConj = [xnom(7); -xnom(8:10)]; % conjugated nominal quaternion
