@@ -68,8 +68,8 @@ classdef ESKF
             R = quat2rotmat(quat);
             
             % predictions
-            posPred = pos + Ts * vel + (Ts^2 / 2) * R * acc; % what about g?
-            velPred = vel + Ts * R * acc;
+            posPred = pos + Ts * vel + (Ts^2 / 2) * (R * acc + obj.g); % what about g????? This was from Sola
+            velPred = vel + Ts * R * acc + obj.g * Ts; % What about g?????
             
             dtheta = Ts * omega; 
             
@@ -156,8 +156,8 @@ classdef ESKF
             VanLoanMat = expm(V); % can potentially be slow
              
             % exctract relevat matrices.
-            Ad = VanLoanMat(16:30, 16:30); % why not transpose??? 
-            GQGd = Ad' * VanLoanMat(1:15, 16:30);
+            Ad = VanLoanMat(16:30, 16:30)'; % why not transpose??? ?????
+            GQGd = Ad * VanLoanMat(1:15, 16:30);
         end
         
         function Ppred = predictCovariance(obj, xnom, P, acc, omega, Ts)
@@ -240,7 +240,7 @@ classdef ESKF
             % v (3 x 1): innovation
             % S (3 x 3): innovation covariance
             
-            H = [eye(3), zeros(3, 13)]; 
+            H = [eye(3), zeros(3, 13)]; % Issue might be with 15x15 or 16x16 H?
             
             % innovation calculation
             v = zGNSSpos - H * xnom; % innovation
@@ -277,12 +277,12 @@ classdef ESKF
             
             [innov, S] = obj.innovationGNSS(xnom, P, zGNSSpos, RGNSS, leverarm);
             % measurement matrix
-            H = [eye(3), zeros(3, 13)]; 
+            H = [eye(3), zeros(3, 13)];
             
             % in case of a specified lever arm
             if nargin > 5
                 R = quat2rotmat(xnom(7:10));
-                H(:, 7:9) = - R * crossProdMat(leverarm);
+                H(:, 7:9) = - R * crossProdMat(leverarm); %????
             end
             
             % KF error state update
