@@ -1,4 +1,11 @@
 function eul = quat2eul(q)
+%% Convert quaternion to Euler angles
+% Given n quaternions, convert these to Euler angles
+% 
+% xtrue (4 x n): Quaternions
+%
+% deltaX (3 x n): Euler angles
+
 qSquared = q.^2;
 
 phi   = atan2(2 * (q(4, :) .* q(3, :) + q(1, :) .* q(2, :)), ...
