@@ -73,7 +73,8 @@ classdef ESKF
             
             dtheta = Ts * omega; 
             
-            dq = [cos(norm(dtheta) / 2); sin(norm(dtheta) / 2) * dtheta / norm(dtheta)];
+            k_abs = norm(dtheta);
+            dq = [cos(k_abs / 2); sin(k_abs / 2) * dtheta / k_abs];
             quatPred = quatProd(quat, dq); 
             
             accBiasPred  = accBias  - Ts * obj.pAcc  * eye(3) * accBias; 
@@ -227,7 +228,7 @@ classdef ESKF
             Pinjected = Ginject * P * Ginject';
         end
         
-        function [v, S] = innovationGNSS(~, xnom, P, zGNSSpos, RGNSS, leverarm)
+        function [v, S, H] = innovationGNSS(~, xnom, P, zGNSSpos, RGNSS, leverarm)
             % Calculates the innovation and its covariance for a GNSS
             % position measurement.
             %
@@ -240,10 +241,23 @@ classdef ESKF
             % v (3 x 1): innovation
             % S (3 x 3): innovation covariance
             
-            H = [eye(3), zeros(3, 13)]; % Issue might be with 15x15 or 16x16 H?
+            % measurement matrix
+            H_x = [eye(3), zeros(3, 13)];
+            
+            eta = xnom(7); 
+            ep1 = xnom(8); 
+            ep2 = xnom(9); 
+            ep3 = xnom(10); 
+            Q_dtheta = 1/2 * [  -ep1, -ep2, -ep3; 
+                                 eta, -ep3,  ep2; 
+                                 ep3,  eta, -ep1; 
+                                -ep2,  ep1,  eta]; 
+            
+            X_dx = blkdiag(eye(6), Q_dtheta, eye(6)); 
+            H = H_x * X_dx; 
             
             % innovation calculation
-            v = zGNSSpos - H * xnom; % innovation
+            v = zGNSSpos - H_x * xnom; % innovation
             
             % in case of a specified lever arm
             if nargin > 5
@@ -252,7 +266,7 @@ classdef ESKF
                 v = v - R * leverarm;
             end
             
-            S = H(:, 1:15) * P * H(:, 1:15)' + RGNSS; % Innovation covariance
+            S = H * P * H' + RGNSS; % Innovation covariance
         end
         
         function [xinjected, Pinjected] = updateGNSS(obj, xnom, P, zGNSSpos, RGNSS, leverarm)
@@ -275,9 +289,7 @@ classdef ESKF
             
             I = eye(size(P));
             
-            [innov, S] = obj.innovationGNSS(xnom, P, zGNSSpos, RGNSS, leverarm);
-            % measurement matrix
-            H = [eye(3), zeros(3, 13)];
+            [innov, S, H] = obj.innovationGNSS(xnom, P, zGNSSpos, RGNSS, leverarm);
             
             % in case of a specified lever arm
             if nargin > 5
@@ -286,9 +298,9 @@ classdef ESKF
             end
             
             % KF error state update
-            W = P * H(:, 1:15)' / S; % Kalman gain
+            W = P * H' / S; % Kalman gain
             deltaX = W * innov; 
-            Pupd = (I - W * H(:, 1:15)) * P; 
+            Pupd = (I - W * H) * P; 
             
             % error state injection
             [xinjected, Pinjected] = obj.inject(xnom, deltaX, Pupd); 
@@ -308,7 +320,7 @@ classdef ESKF
             if nargin < 6
                 leverarm = zeros(3,1);
             end
-            [innov, S] = obj.innovationGNSS(xnom, P, zGNSSpos, RGNSSpos, leverarm);
+            [innov, S, ~] = obj.innovationGNSS(xnom, P, zGNSSpos, RGNSSpos, leverarm);
             NIS = innov' * (S \ innov);
         end
         
