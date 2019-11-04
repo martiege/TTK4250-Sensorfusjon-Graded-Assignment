@@ -46,7 +46,7 @@ GNSSk = 1;
 for k = 1:N
     if  timeIMU(k) >= timeGNSS(GNSSk)
         % est or pred? 
-        NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(GNSSk), RGNSS, leverarm);
+        NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         %xest(:, k) = xpred(:, k);
         %Pest(:, :, k) = Ppred(:, :, k);
