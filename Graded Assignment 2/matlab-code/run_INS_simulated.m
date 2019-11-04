@@ -4,17 +4,17 @@ steps = size(zAcc,2);
 
 %% Measurement noise
 % GNSS Position  measurement
-p_std = [1, 1, 1]'; % Measurement noise
+p_std = [2 2 2]'; % Measurement noise
 RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = 1^2; % accelerometer measurement noise covariance
-qAb = 1^2; % accelerometer bias driving noise covariance
-pAcc = 1; % accelerometer bias reciprocal time constant
+qA = (1e-5)^2; % accelerometer measurement noise covariance
+qAb = (1e-10)^2; % accelerometer bias driving noise covariance
+pAcc = 1e-5; % accelerometer bias reciprocal time constant
 
-qG = 1^2; % gyro measurement noise covariance
-qGb = 1^2;  % gyro bias driving noise covariance
-pGyro = 1; % gyro bias reciprocal time constant
+qG = (1e-4)^2; % gyro measurement noise covariance
+qGb = (1e-8)^2;  % gyro bias driving noise covariance
+pGyro = 1e-5; % gyro bias reciprocal time constant
 
 
 %% Estimator
@@ -36,18 +36,20 @@ xpred(7, 1) = 1; % no initial rotation: nose to north, right to East and belly d
 
 Ppred(1:3, 1:3, 1) = eye(3); 
 Ppred(4:6, 4:6, 1) = eye(3);
-Ppred(7:9, 7:9, 1) = eye(3); % error rotation vector (not quat)
-Ppred(10:12, 10:12, 1) = eye(3);
-Ppred(13:15, 13:15, 1) = eye(3);
+Ppred(7:9, 7:9, 1) = 1e-6*eye(3); % error rotation vector (not quat)
+Ppred(10:12, 10:12, 1) = 1e-5*eye(3);
+Ppred(13:15, 13:15, 1) = 1e-5*eye(3);
 
 %% run
-N = 90000;
+N = 10000;
 GNSSk = 1;
 for k = 1:N
     if  timeIMU(k) >= timeGNSS(GNSSk)
         % est or pred? 
         NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(GNSSk), RGNSS, leverarm);
-        [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(GNSSk), RGNSS, leverarm);
+        [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
+        %xest(:, k) = xpred(:, k);
+        %Pest(:, :, k) = Ppred(:, :, k);
         GNSSk = GNSSk  + 1;
         
         % sanity check, remove for some minor speed
