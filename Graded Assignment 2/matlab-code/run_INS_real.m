@@ -13,13 +13,15 @@ p_std = ones(3,1) * GNSSaccMax;
 RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = (3e-1)^2; % accelerometer measurement noise covariance
-qAb = (1e-3)^2; % accelerometer bias driving noise covariance
-pAcc = 1e-8; % accelerometer bias reciprocal time constant
+g = 9.80665; 
 
-qG = (1e1)^2; % gyro measurement noise covariance
-qGb = (1e-7)^2;  % gyro bias driving noise covariance
-pGyro = 1e-8; % gyro bias reciprocal time constant
+qA = (1e-1 * 1e-3 * g)^2; % accelerometer measurement noise covariance
+qAb = (0.05 * 1e-3 * g)^2; % accelerometer bias driving noise covariance
+pAcc = 0 * 1e-8; % accelerometer bias reciprocal time constant
+
+qG = (deg2rad(1e0) / (60^2))^2; % gyro measurement noise covariance
+qGb = (deg2rad(0.5) / (60^2))^2;  % gyro bias driving noise covariance
+pGyro = 0 * 1e-8; % gyro bias reciprocal time constant
 
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
