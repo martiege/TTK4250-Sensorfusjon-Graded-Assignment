@@ -13,17 +13,17 @@ plot_boxplot         = true; % figure 6
 
 %% Measurement noise
 % GNSS Position  measurement
-p_std = 1e-1 * [1 1 1]'; % Measurement noise
+p_std = 4e-1 * [1 1 1]'; % Measurement noise
 RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = (1e-2)^2; % accelerometer measurement noise covariance
-qAb = (1e-4)^2; % accelerometer bias driving noise covariance
-pAcc = 0 * 1e-6; % accelerometer bias reciprocal time constant
+qA = (4e-2)^2; % accelerometer measurement noise covariance
+qAb = (4e-3)^2; % accelerometer bias driving noise covariance
+pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (1e-2)^2; % gyro measurement noise covariance
-qGb = (1e-3)^2;  % gyro bias driving noise covariance
-pGyro = 0 * 1e-5; % gyro bias reciprocal time constant
+qG = (5e-3)^2; % gyro measurement noise covariance
+qGb = (5e-4)^2;  % gyro bias driving noise covariance
+pGyro = 1e-8; % gyro bias reciprocal time constant
 
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
@@ -46,8 +46,7 @@ Ppred(1:3, 1:3, 1) = 1e-2*eye(3);
 Ppred(4:6, 4:6, 1) = 1e-2*eye(3);
 Ppred(7:9, 7:9, 1) = 1e-5*eye(3); % error rotation vector (not quat)
 Ppred(10:12, 10:12, 1) = 1e-3*eye(3);
-Ppred(13:15, 13:15, 1) = 1e-5*eye(3);
-
+Ppred(13:15, 13:15, 1) = 1e-6*eye(3);
 %% run
 N = 90000/10;
 GNSSk = 1;
