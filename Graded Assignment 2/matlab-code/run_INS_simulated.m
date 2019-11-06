@@ -4,17 +4,17 @@ steps = size(zAcc,2);
 
 %% Measurement noise
 % GNSS Position  measurement
-p_std = 1e-1 * [1 1 1]'; % Measurement noise
+p_std = 4e-1 * [1 1 1]'; % Measurement noise
 RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = (1e-2)^2; % accelerometer measurement noise covariance
-qAb = (1e-4)^2; % accelerometer bias driving noise covariance
-pAcc = 0 * 1e-6; % accelerometer bias reciprocal time constant
+qA = (4e-2)^2; % accelerometer measurement noise covariance
+qAb = (4e-3)^2; % accelerometer bias driving noise covariance
+pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (1e-2)^2; % gyro measurement noise covariance
-qGb = (1e-3)^2;  % gyro bias driving noise covariance
-pGyro = 0 * 1e-5; % gyro bias reciprocal time constant
+qG = (5e-3)^2; % gyro measurement noise covariance
+qGb = (5e-4)^2;  % gyro bias driving noise covariance
+pGyro = 1e-8; % gyro bias reciprocal time constant
 
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
@@ -33,18 +33,15 @@ xpred(1:3, 1) = [0, 0, -5]'; % starting 5 meters above ground
 xpred(4:6, 1) = [20, 0, 0]'; % starting at 20 m/s due north
 xpred(7, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
 
-Ppred(1:3, 1:3, 1) = 1e-4*eye(3); 
-Ppred(4:6, 4:6, 1) = 1e-4*eye(3);
-Ppred(7:9, 7:9, 1) = 1e-8*eye(3); % error rotation vector (not quat)
+Ppred(1:3, 1:3, 1) = 1e-2*eye(3); 
+Ppred(4:6, 4:6, 1) = 1e-2*eye(3);
+Ppred(7:9, 7:9, 1) = 1e-4*eye(3); % error rotation vector (not quat)
 Ppred(10:12, 10:12, 1) = 1e-3*eye(3);
-Ppred(13:15, 13:15, 1) = 1e-5*eye(3);
-
+Ppred(13:15, 13:15, 1) = 1e-6*eye(3);
 %% run
-N = 90000;
+N = 9000;
 GNSSk = 1;
 for k = 1:N
-    
-    
     if  timeIMU(k) >= timeGNSS(GNSSk)
         NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
@@ -66,15 +63,15 @@ end
 GNSSk = GNSSk - 1;    
 
 %% plots
-figure(1);
-clf;
-plot3(xest(2, 1:N), xest(1, 1:N), -xest(3, 1:N));
-hold on;
-plot3(zGNSS(2, 1:GNSSk), zGNSS(1, 1:GNSSk), -zGNSS(3, 1:GNSSk))
-grid on; 
-xlabel('East [m]')
-ylabel('North [m]')
-zlabel('Altitude [m]')
+% figure(1);
+% clf;
+% plot3(xest(2, 1:N), xest(1, 1:N), -xest(3, 1:N));
+% hold on;
+% plot3(zGNSS(2, 1:GNSSk), zGNSS(1, 1:GNSSk), -zGNSS(3, 1:GNSSk))
+% grid on; 
+% xlabel('East [m]')
+% ylabel('North [m]')
+% zlabel('Altitude [m]')
 
 % state estimate plot
 eul = quat2eul(xest(7:10, :));
@@ -160,20 +157,20 @@ legend(sprintf('x (%.3g)', sqrt(mean(((deltaX(13, 1:N))*180/pi).^2))),...
 %suptitle('States estimate errors');
 
 % error distance plot
-figure(4); clf; hold on;
-subplot(2,1,1); hold on;
-plot((0:(N-1))*dt, sqrt(sum(deltaX(1:3, 1:N).^2,1)))
-plot((0:100:(N-1))*dt, sqrt(sum((xtrue(1:3, 100:100:N) - zGNSS(:, 1:GNSSk-1)).^2,1)))
-ylabel('Position error [m]')
-grid on;
-legend(sprintf('estimation error (%.3g)',sqrt(mean(sum(deltaX(1:3, 1:N).^2,1))) ),...
-    sprintf('measurement error (%.3g)', sqrt(mean(sum((xtrue(1:3, 100:100:N) - zGNSS(:, 1:GNSSk-1)).^2,1)))));
-
-subplot(2,1,2);
-plot((0:(N-1))*dt, sqrt(sum(deltaX(4:6, 1:N).^2, 1)))
-ylabel('Speed error [m/s]');
-title(sprintf('RMSE: %.3g', sqrt(mean(sum(deltaX(4:6, 1:N).^2, 1)))));
-grid on;
+% figure(4); clf; hold on;
+% subplot(2,1,1); hold on;
+% plot((0:(N-1))*dt, sqrt(sum(deltaX(1:3, 1:N).^2,1)))
+% plot((0:100:(N-1))*dt, sqrt(sum((xtrue(1:3, 100:100:N) - zGNSS(:, 1:GNSSk-1)).^2,1)))
+% ylabel('Position error [m]')
+% grid on;
+% legend(sprintf('estimation error (%.3g)',sqrt(mean(sum(deltaX(1:3, 1:N).^2,1))) ),...
+%     sprintf('measurement error (%.3g)', sqrt(mean(sum((xtrue(1:3, 100:100:N) - zGNSS(:, 1:GNSSk-1)).^2,1)))));
+% 
+% subplot(2,1,2);
+% plot((0:(N-1))*dt, sqrt(sum(deltaX(4:6, 1:N).^2, 1)))
+% ylabel('Speed error [m/s]');
+% title(sprintf('RMSE: %.3g', sqrt(mean(sum(deltaX(4:6, 1:N).^2, 1)))));
+% grid on;
 
 %% CONSISTENCY
 alpha = 0.05;
@@ -238,18 +235,18 @@ insideCI = mean((CI3(1) <= NIS).* (NIS <= CI3(2)));
 title(sprintf('NIS (%.3g%% inside %.3g%% confidence intervall)', 100*insideCI, 100*(1 - alpha)));
 
 % boxplot
-figure(6)
-subplot(1,3,1)
-gaussCompare = sum(randn(3, numel(NIS)).^2, 1);
-boxplot([NIS', gaussCompare'],'notch','on',...
-        'labels',{'NIS','gauss'})
-grid on
-subplot(1,3,2)
-gaussCompare15 = sum(randn(15, N).^2, 1);
-gaussCompare3 = sum(randn(3, N).^2, 1);
-boxplot([NEES(1:N)', gaussCompare15'],'notch', 'on', 'labels',{'NEES','gauss(15dim)'});
-grid on;
-subplot(1,3,3)
-boxplot([NEESpos(1:N)', NEESvel(1:N)', NEESatt(1:N)', NEESaccbias(1:N)', NEESgyrobias(1:N)', gaussCompare3'],...
-    'notch', 'on', 'labels',{'NEESpos', 'NEESvel', 'NEESatt', 'NEESaccbias', 'NEESgyrobias', 'gauss(3dim)'})
-grid on;
+% figure(6)
+% subplot(1,3,1)
+% gaussCompare = sum(randn(3, numel(NIS)).^2, 1);
+% boxplot([NIS', gaussCompare'],'notch','on',...
+%         'labels',{'NIS','gauss'})
+% grid on
+% subplot(1,3,2)
+% gaussCompare15 = sum(randn(15, N).^2, 1);
+% gaussCompare3 = sum(randn(3, N).^2, 1);
+% boxplot([NEES(1:N)', gaussCompare15'],'notch', 'on', 'labels',{'NEES','gauss(15dim)'});
+% grid on;
+% subplot(1,3,3)
+% boxplot([NEESpos(1:N)', NEESvel(1:N)', NEESatt(1:N)', NEESaccbias(1:N)', NEESgyrobias(1:N)', gaussCompare3'],...
+%     'notch', 'on', 'labels',{'NEESpos', 'NEESvel', 'NEESatt', 'NEESaccbias', 'NEESgyrobias', 'gauss(3dim)'})
+% grid on;
