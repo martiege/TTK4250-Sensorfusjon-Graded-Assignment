@@ -2,7 +2,7 @@ load task_real;
 IMUTs = diff(timeIMU);
 dt = mean(IMUTs);
 K = size(zAcc,2);
-K_start = 50000;
+K_start = 1;
 
 loading_print = true;
 
@@ -51,7 +51,7 @@ for k = K_start:N
     t = timeIMU(k);
     
     if loading_print
-        prcdone(k,N,'ESKF',10);
+        prcdone(k,N,'ESKF',1);
     end
     
     if timeGNSS(GNSSk) < t
