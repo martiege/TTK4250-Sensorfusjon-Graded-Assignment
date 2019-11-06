@@ -2,6 +2,7 @@ load task_real;
 IMUTs = diff(timeIMU);
 dt = mean(IMUTs);
 K = size(zAcc,2);
+K_start = 50000;
 
 loading_print = true;
 
@@ -12,12 +13,12 @@ p_std = ones(3,1) * GNSSaccMax;
 RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = (1e-4)^2; % accelerometer measurement noise covariance
-qAb = (1e-4)^2; % accelerometer bias driving noise covariance
+qA = (1e-2)^2; % accelerometer measurement noise covariance
+qAb = (1e-3)^2; % accelerometer bias driving noise covariance
 pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (1e-6)^2; % gyro measurement noise covariance
-qGb = (1e-7)^2;  % gyro bias driving noise covariance
+qG = (2e-4)^2; % gyro measurement noise covariance
+qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
 
@@ -47,7 +48,7 @@ Ppred(13:15, 13:15, 1) = (2e-5)^2 * eye(3);
 %% run
 N = K;
 GNSSk = 1;
-for k = 1:N
+for k = K_start:N
     t = timeIMU(k);
     
     if loading_print
@@ -58,10 +59,6 @@ for k = 1:N
         NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         GNSSk = GNSSk + 1;
-    
-        if any(any(~isfinite(Pest(:, :, k))))
-            error('not finite Pest at time %d',k)
-        end
     else % no updates so estimate = prediction
         xest(:, k) = xpred(:, k);
         Pest(:, :, k) = Ppred(:, :, k);
@@ -69,18 +66,14 @@ for k = 1:N
 
     if k < K
         [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
-        
-        if any(any(~isfinite(Ppred(:, :, k + 1))))
-            error('not finite Ppred at time %d', k + 1)
-        end
     end  
 end
 %% plots
 figure(1);
 clf;
-plot3(xest(2, 1:N), xest(1, 1:N), -xest(3, 1:N));
+plot3(xest(2, K_start:N), xest(1, K_start:N), -xest(3, K_start:N));
 hold on;
-plot3(zGNSS(2, 1:GNSSk), zGNSS(1, 1:GNSSk), -zGNSS(3, 1:GNSSk))
+plot3(zGNSS(2, K_start:GNSSk), zGNSS(1, K_start:GNSSk), -zGNSS(3, K_start:GNSSk))
 grid on; axis equal
 xlabel('East [m]')
 ylabel('North [m]')
@@ -90,24 +83,24 @@ zlabel('Altitude [m]')
 eul = quat2eul(xest(7:10, :))*180/pi;
 figure(2); clf; hold on;
 subplot(5,1,1);
-plot(timeIMU(1:N) - timeIMU(1), xest(1:3, 1:N))
+plot(timeIMU(K_start:N) - timeIMU(1), xest(1:3, K_start:N))
 grid on;
 ylabel('NED position [m]')
 subplot(5,1,2);
-plot(timeIMU(1:N) - timeIMU(1), xest(4:6, 1:N))
+plot(timeIMU(K_start:N) - timeIMU(1), xest(4:6, K_start:N))
 grid on;
 ylabel('Velocitites [m/s]')
 subplot(5,1,3);
-plot(timeIMU(1:N) - timeIMU(1), eul(:, 1:N))
+plot(timeIMU(K_start:N) - timeIMU(1), eul(:, K_start:N))
 grid on;
 ylabel('euler angles [deg]')
 legend('\phi', '\theta', '\psi')
 subplot(5, 1, 4)
-plot(timeIMU(1:N) - timeIMU(1), xest(11:13, 1:N))
+plot(timeIMU(K_start:N) - timeIMU(1), xest(11:13, K_start:N))
 grid on;
 ylabel('Accl bias [m/s^2]')
 subplot(5, 1, 5)
-plot(timeIMU(1:N) - timeIMU(1), xest(14:16, 1:N)*180/pi * 3600)
+plot(timeIMU(K_start:N) - timeIMU(1), xest(14:16, K_start:N)*180/pi * 3600)
 grid on;
 ylabel('Gyro bias [rad/s]')
 
