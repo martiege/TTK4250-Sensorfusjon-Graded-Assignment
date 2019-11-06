@@ -18,7 +18,7 @@ qAb = (1e-3)^2; % accelerometer bias driving noise covariance
 pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
 qG = (1e1)^2; % gyro measurement noise covariance
-qGb = (1e0)^2;  % gyro bias driving noise covariance
+qGb = (1e-7)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
 %% Estimator
