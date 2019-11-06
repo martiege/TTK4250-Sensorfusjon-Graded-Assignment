@@ -1,7 +1,10 @@
 load task_real;
 IMUTs = diff(timeIMU);
 dt = mean(IMUTs);
-K = 400000; %size(zAcc,2);
+K = size(zAcc,2);
+
+loading_print = true;
+
 %% Measurement noise
 % GNSS Position measurement
 GNSSaccMax = max(GNSSaccuracy);
@@ -45,6 +48,10 @@ N = K;
 GNSSk = 1;
 for k = 1:N
     t = timeIMU(k);
+    
+    if loading_print
+        prcdone(k,N,'ESKF',10);
+    end
     
     if timeGNSS(GNSSk) < t
         NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);

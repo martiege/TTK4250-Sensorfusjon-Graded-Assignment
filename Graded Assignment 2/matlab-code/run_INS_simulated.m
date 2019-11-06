@@ -77,5 +77,5 @@ GNSSk = GNSSk - 1;
 
 %% plots
 if plotting
-    plotting_script
+    plotting_script_simulated
 end
