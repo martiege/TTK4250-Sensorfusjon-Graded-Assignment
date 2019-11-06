@@ -21,7 +21,6 @@ qG = (2e-4)^2; % gyro measurement noise covariance
 qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
-
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
 eskf.Sa = S_a; % set the accelerometer correction matrix
