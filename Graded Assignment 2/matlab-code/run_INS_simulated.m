@@ -16,11 +16,11 @@ RGNSS = diag(p_std.^2);
 
 % accelerometer
 qA = (4e-2)^2; % accelerometer measurement noise covariance
-qAb = (4e-3)^2; % accelerometer bias driving noise covariance
+qAb = (1e-3)^2; % accelerometer bias driving noise covariance
 pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (5e-3)^2; % gyro measurement noise covariance
-qGb = (5e-4)^2;  % gyro bias driving noise covariance
+qG = (8e-4)^2; % gyro measurement noise covariance
+qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
 %% Estimator
@@ -40,13 +40,13 @@ xpred(1:3, 1) = [0, 0, -5]'; % starting 5 meters above ground
 xpred(4:6, 1) = [20, 0, 0]'; % starting at 20 m/s due north
 xpred(7, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
 
-Ppred(1:3, 1:3, 1) = 1e-2*eye(3); 
-Ppred(4:6, 4:6, 1) = 1e-2*eye(3);
+Ppred(1:3, 1:3, 1) = 1e-3*eye(3); 
+Ppred(4:6, 4:6, 1) = 1e-3*eye(3);
 Ppred(7:9, 7:9, 1) = 1e-5*eye(3); % error rotation vector (not quat)
-Ppred(10:12, 10:12, 1) = 1e-3*eye(3);
+Ppred(10:12, 10:12, 1) = 1e-2*eye(3);
 Ppred(13:15, 13:15, 1) = 1e-6*eye(3);
 %% run
-N = 90000/10;
+N = 90000;
 GNSSk = 1;
 for k = 1:N
     prcdone(k,N,'ESKF',10);
