@@ -1,19 +1,21 @@
 load task_real;
 IMUTs = diff(timeIMU);
 dt = mean(IMUTs);
-K = size(zAcc,2);
+K = 10000; %size(zAcc,2);
 %% Measurement noise
-% GNSS Position  measurement
-...
+% GNSS Position measurement
+GNSSaccMax = max(GNSSaccuracy);
+p_std = ones(3,1) * GNSSaccMax;
+RGNSS = diag(p_std.^2);
 
 % accelerometer
-qA = ...^2; % accelerometer measurement noise covariance
-qAb = ...^2; % accelerometer bias driving noise covariance
-pAcc = ...; % accelerometer bias reciprocal time constant
+qA = (1e-4)^2; % accelerometer measurement noise covariance
+qAb = (1e-4)^2; % accelerometer bias driving noise covariance
+pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = ...^2; % gyro measurement noise covariance
-qGb = ...^2;  % gyro bias driving noise covariance
-pGyro = ...; % gyrp bias reciprocal time constant
+qG = (1e-6)^2; % gyro measurement noise covariance
+qGb = (1e-7)^2;  % gyro bias driving noise covariance
+pGyro = 1e-8; % gyro bias reciprocal time constant
 
 
 %% Estimator
@@ -45,25 +47,21 @@ GNSSk = 1;
 for k = 1:N
     t = timeIMU(k);
     
-    if mod(k, 1000) == 0
-        fprintf('time %.3f at step %d\n', t - IMUtime(1), k);
-    end
-    
     if timeGNSS(GNSSk) < t
-        NIS(GNSSk) = ...;
-        [xest(:, k), Pest(:, :, k)] = ...;
+        NIS(GNSSk) = eskf.NISGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
+        [xest(:, k), Pest(:, :, k)] = eskf.updateGNSS(xpred(:, k), Ppred(:, :, k), zGNSS(:, GNSSk), RGNSS, leverarm);
         GNSSk = GNSSk + 1;
     
         if any(any(~isfinite(Pest(:, :, k))))
             error('not finite Pest at time %d',k)
         end
     else % no updates so estimate = prediction
-        xest(:, k) = ...;
-        Pest(:, :, k) = ...;
+        xest(:, k) = xpred(:, k);
+        Pest(:, :, k) = Ppred(:, :, k);
     end
 
     if k < K
-        [xpred(:, k + 1),  Ppred(:, :, k + 1)] = ...;
+        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
         
         if any(any(~isfinite(Ppred(:, :, k + 1))))
             error('not finite Ppred at time %d', k + 1)
@@ -110,7 +108,7 @@ figure(3);
 alpha = 0.05;
 CI3 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 3);
 clf;
-plot(timeGNSS(1:(GNSSk - 1)) - timeIMU(1), NIS);
+plot(timeGNSS(1:(GNSSk - 1)) - timeIMU(1), NIS(1:GNSSk - 1));
 grid on;
 hold on;
 plot([0, timeIMU(N) - timeIMU(1)], (CI3*ones(1,2))', 'r--');
