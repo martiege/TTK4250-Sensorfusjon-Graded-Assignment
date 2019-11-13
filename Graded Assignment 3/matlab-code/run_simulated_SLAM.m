@@ -1,10 +1,10 @@
 load simulatedSLAM;
 K = numel(z);
 %%
-Q = ...
-R = ...
+Q = diag([0.1, 0.1, 0.1].^2); 
+R = diag([0.1, 0.1].^2); 
 doAsso = true;
-JCBBalphas = [..., ...] % first is for joint compatibility, second is individual 
+JCBBalphas = [0.9, 0.9]; % first is for joint compatibility, second is individual 
 slam = EKFSLAM(Q, R, doAsso, JCBBalphas);
 
 % allocate
@@ -24,6 +24,8 @@ axAsso = gca;
 N = K;
 doAssoPlot = true; % set to true to se the associations that are done
 for k = 1:N
+    prcdone(k, N, 'Come on and SLAM', 1); 
+    
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
     if k < K
         [xpred{k + 1}, Ppred{k + 1}] = slam.predict(xhat{k}, Phat{k}, odometry(:, k));
@@ -42,9 +44,9 @@ for k = 1:N
         scatter(axAsso, zpred(1, :), zpred(2, :));
         plot(axAsso, [z{k}(1, a{k}>0); zpred(1, a{k}(a{k}>0))], [z{k}(2, a{k}>0); zpred(2, a{k}(a{k}>0))], 'r', 'linewidth', 2)
         
-        legend(axAsso, 'z', 'zbar', 'a')
+        legend(axAsso, 'z', 'zbar') % , 'a')
         title(axAsso, sprintf('k = %d: %s', k, sprintf('%d, ',a{k})));
-        pause();
+        %pause();
     end
 end
 

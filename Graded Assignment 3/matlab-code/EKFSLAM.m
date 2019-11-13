@@ -85,8 +85,8 @@ classdef EKFSLAM
             
             % in place for performance 
             P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + obj.Q; % resize Q?
-            P(1:3, 4:end) = P(1:3, 4:end) * Fx'; 
-            P(4:end, 1:3) = Fx * P(4:end, 1:3); 
+            P(1:3, 4:end) = Fx * P(1:3, 4:end); 
+            P(4:end, 1:3) = P(4:end, 1:3) * Fx'; 
             
             % concatenate pose and landmarks again
             etapred = [xpred; m];
@@ -106,7 +106,7 @@ classdef EKFSLAM
             Rot = rotmat2d(-x(3)); % rot from world to body
             
             % cartesian measurement in world
-            z_c = (m - x(1:2)') - Rot' * obj.sensOffset;
+            z_c = m - x(1:2) - Rot' * obj.sensOffset;
             
             % in body
             z_b = Rot * z_c; 
@@ -141,10 +141,10 @@ classdef EKFSLAM
             for i = 1:numM
                 inds = 2*(i - 1) + [1; 2];
                 
-                jac_z_b = [-eye(2), -Rpihalf * m_minus_rho];
+                jac_z_b = [-eye(2), -Rpihalf * m_minus_rho(:, i)];
                 
-                Hx(inds(1), :) = z_c' / norm(z_c) * jac_z_b; % jac z_r 
-                Hx(inds(2), :) = z_c' * Rpihalf' / (norm(z_c)^2) * jac_z_b; % jac z_phi
+                Hx(inds(1), :) = z_c(:, i)' / norm(z_c(:, i)) * jac_z_b; % jac z_r 
+                Hx(inds(2), :) = z_c(:, i)' * Rpihalf' / (norm(z_c(:, i))^2) * jac_z_b; % jac z_phi
             
                 % smack on a minus if wrong
                 Hm(inds, inds) = -Hx(inds, 1:2); % should be negative of the two first colums of Hx
@@ -170,7 +170,7 @@ classdef EKFSLAM
             Gx = zeros(numLmk * 2, 3);
             Rall = zeros(numLmk * 2, numLmk * 2);
             
-            Rpsipluspihalf = rotmat2ed(eta(3) + pi/2); 
+            Rpsipluspihalf = rotmat2d(eta(3) + pi/2); 
 
             for j = 1:numLmk
                 % find indeces and the relevant measurement
@@ -181,7 +181,7 @@ classdef EKFSLAM
 
                 % lmnew(inds) = ... % mean
                 Gx(inds, :) = [eye(2), zj(1) * [-sin(zj(2) + eta(3)); cos(zj(2) + eta(3))] + Rpsipluspihalf * obj.sensOffset]; % jac h^-1 wrt. x
-                Gz =  rot * diag(1, zj(1)); % jac h^-1 wrt. z
+                Gz =  rot * diag([1, zj(1)]); % jac h^-1 wrt. z
                 Rall(inds, inds) = Gz * obj.R * Gz'; % the linearized measurement noise
 
             end
@@ -228,7 +228,7 @@ classdef EKFSLAM
                 % prediction and innovation covariance
                 zpred = obj.h(eta);
                 H = obj.H(eta); 
-                S = H * P * H' + obj.R; 
+                S = H * P * H' + kron(eye(numLmk), obj.R); 
                 z = z(:); % vectorize
                 
                 % perform data association if it is asked for
@@ -239,7 +239,8 @@ classdef EKFSLAM
                 v(2:2:end) = wrapToPi(v(2:2:end)); % angles are in [-pi, pi]
 
                 % Kalman update
-                W = P * H' \ S; 
+                W = P * H' / S; 
+                % W = P * H' * inv(S); 
                 etaupd = eta + W * v; 
                 NIS = v' / S * v; 
                 Pupd = (eye(size(P)) - W * H) * P; 
