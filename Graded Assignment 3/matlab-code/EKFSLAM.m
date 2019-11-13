@@ -5,9 +5,10 @@ classdef EKFSLAM
         doAsso
         alpha
         sensOffset
+        speed
     end
     methods
-        function obj = EKFSLAM(Q, R, doAsso, alphas, sensorOffset)
+        function obj = EKFSLAM(Q, R, doAsso, alphas, sensorOffset, speed)
             obj.Q = Q;
             obj.R = R;
             
@@ -24,50 +25,77 @@ classdef EKFSLAM
             if nargin < 5
                 sensorOffset = zeros(2,1);
             end
+            
+            if nargin < 6
+                speed = false; 
+            end
+            obj.speed = speed; 
+            
             obj.sensOffset = sensorOffset(:);
         end
         
         function xpred = f(~, x, u)
-            xpred = %
+            % equation 11.7
+            s_psi = sin(x(3)); 
+            c_psi = cos(x(3)); 
+            xpred = [x(1) + u(1) * c_psi - u(2) * s_psi;
+                     x(2) + u(1) * s_psi + u(2) * c_psi;
+                     x(3) + u(3)];
         end
         
-        function Fx = Fx(~, x, u)
-            Fx = %
+        function Fx = Fx(obj, x, u)
+            % equation 11.13
+            s_psi = sin(x(3)); 
+            c_psi = cos(x(3));
+            Fx = [1, 0, -u(1) * s_psi - u(2) * c_psi; 
+                  0, 1,  u(1) * c_psi - u(2) * s_psi; 
+                  0, 0,  1]; 
             
             % check that jacobian is correct, remove for speed
-            if norm(F - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
-                error('some error in pred Jac')
+            if obj.speed
+                if norm(F - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
+                    error('some error in pred Jac')
+                end
             end
         end
         
-        function Fu = Fu(~, x, u)
-              Fu = %
+        function Fu = Fu(obj, x, u)
+            % equation 11.14
+            s_psi = sin(x(3)); 
+            c_psi = cos(x(3));
+            Fu = [-s_psi, -c_psi, 0; 
+                   c_psi, -s_psi, 0; 
+                       0,      0, 1]; 
               
-              % check that the jacobian is correct, remove for speed
-            if norm(F - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
-                error('some error in pred Jac')
-            end            
+            % check that the jacobian is correct, remove for speed
+            if obj.speed
+                if norm(F - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
+                    error('some error in pred Jac')
+                end
+            end
         end
         
         function [etapred, P] =  predict(obj, eta, P, zOdo)
             x = eta(1:3); % pose
             m = eta(4:end); % map
             
-            xpred = %
-            Fx = %
-            Fu = %
+            xpred = obj.f(x, zOdo);
+            Fx = obj.Fx(x, zOdo); 
+            Fu = obj.Fu(x, zOdo); 
             
-            % in place for performance
-            P(1:3, 1:3) = %
-            P(1:3, 4:end) = % 
-            P(4:end, 1:3) = % 
+            % in place for performance 
+            P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + obj.Q; % resize Q?
+            P(1:3, 4:end) = P(1:3, 4:end) * Fx'; 
+            P(4:end, 1:3) = Fx * P(4:end, 1:3); 
             
             % concatenate pose and landmarks again
             etapred = [xpred; m];
             
             % check that the covariance makes sense
-            if any(eig(Ppred) <= 0) % costly, remove when tested
-                warn('EKFpredict got cov not PSD')
+            if obj.speed
+                if any(eig(Ppred) <= 0) % costly, remove when tested
+                    warn('EKFpredict got cov not PSD')
+                end
             end
         end
         
@@ -78,13 +106,13 @@ classdef EKFSLAM
             Rot = rotmat2d(-x(3)); % rot from world to body
             
             % cartesian measurement in world
-            z_c = ... - Rot' * obj.sensOffset;
+            z_c = (m - x(1:2)') - Rot' * obj.sensOffset;
             
             % in body
-            z_b = ...
+            z_b = Rot * z_c; 
             
             % polar
-            zpred = ...
+            zpred = [norm(z_b); atan2(z_b(2), z_b(1))]; 
             
             % make column again
             zpred = zpred(:); 
@@ -98,8 +126,8 @@ classdef EKFSLAM
             
             Rot = rotmat2d(x(3));
             
-            m_minus_rho = ...
-            z_c = ... - Rot * obj.sensOffset;
+            m_minus_rho = m - x(1:2); 
+            z_c = m_minus_rho - Rot * obj.sensOffset;
             
             zpred = reshape(obj.h(eta), 2, []);
             zr = zpred(1,:);
@@ -107,26 +135,29 @@ classdef EKFSLAM
             Rpihalf = [0, -1; 1, 0]; 
             
             % allocate
-            Hx  = zeros(2 * numM, 3); % pose columns
+            Hx = zeros(2 * numM, 3); % pose columns
             Hm = zeros(2 * numM, 2 * numM); % map columns (the rest)
             
             for i = 1:numM
                 inds = 2*(i - 1) + [1; 2];
                 
-                jac_z_b = ... 
+                jac_z_b = [-eye(2), -Rpihalf * m_minus_rho];
                 
-                Hx(inds(1), :) = ... jac z_r 
-                Hx(inds(2), :) = ... jac z_phi
+                Hx(inds(1), :) = z_c' / norm(z_c) * jac_z_b; % jac z_r 
+                Hx(inds(2), :) = z_c' * Rpihalf' / (norm(z_c)^2) * jac_z_b; % jac z_phi
             
-                Hm(inds, inds) = ... should be negative of the two first colums of Hx
+                % smack on a minus if wrong
+                Hm(inds, inds) = -Hx(inds, 1:2); % should be negative of the two first colums of Hx
             end
         
             % concatenate the H matrix
             H = [Hx, Hm];
             
             % check that it is done correctly, remove for speed
-            if norm(H - jacobianFD(@(X) obj.h(X), eta, 1e-5), 'fro') > 1e-3
-                error('some error in meas Jac')
+            if obj.speed
+                if norm(H - jacobianFD(@(X) obj.h(X), eta, 1e-5), 'fro') > 1e-3
+                    error('some error in meas Jac')
+                end
             end
         end
         
@@ -135,9 +166,11 @@ classdef EKFSLAM
             numLmk = numel(z)/2;
             
             % allocate
-            lmnew = zeros(size(z));
+            % lmnew = zeros(size(z));
             Gx = zeros(numLmk * 2, 3);
             Rall = zeros(numLmk * 2, numLmk * 2);
+            
+            Rpsipluspihalf = rotmat2ed(eta(3) + pi/2); 
 
             for j = 1:numLmk
                 % find indeces and the relevant measurement
@@ -146,24 +179,26 @@ classdef EKFSLAM
                 
                 rot = rotmat2d(zj(2) + eta(3));
 
-                lmnew(inds) = ... % mean
-                Gx(inds, :) = ... % jac h^1 wrt. x
-                Gz =  % jac h^-1 wrt. z
-                Rall(inds, inds) = ... % the linearized measurement noise
+                % lmnew(inds) = ... % mean
+                Gx(inds, :) = [eye(2), zj(1) * [-sin(zj(2) + eta(3)); cos(zj(2) + eta(3))] + Rpsipluspihalf * obj.sensOffset]; % jac h^-1 wrt. x
+                Gz =  rot * diag(1, zj(1)); % jac h^-1 wrt. z
+                Rall(inds, inds) = Gz * obj.R * Gz'; % the linearized measurement noise
 
             end
             
             % augment state
-            etaadded = ...
+            etaadded = [eta; z];
             
             % add covariances
-            Padded = blkdiag(P, ...);
-            Padded((n+1):end, 1:n) = ...
-            Padded(1:n, (n+1):end) = ...
+            Padded = blkdiag(P, Gx * P(1:3, 1:3) * Gx' + Rall);
+            Padded((n+1):end, 1:n) = Gx*P(1:3, :);
+            Padded(1:n, (n+1):end) = P(:, 1:3)*Gx';
 
             % sanity check, remove for speed
-            if any(eig(Pupd) <= 0) % costly, remove when tested
-                warning('EKFupdate got cov not PSD after adding a landmark');
+            if obj.speed
+                if any(eig(Pupd) <= 0) % costly, remove when tested
+                    warning('EKFupdate got cov not PSD after adding a landmark');
+                end
             end
         end
         
@@ -191,9 +226,9 @@ classdef EKFSLAM
             numLmk = (numel(eta) - 3)/2; % number of landmarks
             if numLmk > 0
                 % prediction and innovation covariance
-                zpred = ...
-                H = ...
-                S = ...
+                zpred = obj.h(eta);
+                H = obj.H(eta); 
+                S = H * P * H' + obj.R; 
                 z = z(:); % vectorize
                 
                 % perform data association if it is asked for
@@ -204,14 +239,16 @@ classdef EKFSLAM
                 v(2:2:end) = wrapToPi(v(2:2:end)); % angles are in [-pi, pi]
 
                 % Kalman update
-                W = ...
-                etaupd = ...
-                NIS = ...
-                Pupd = ...
+                W = P * H' \ S; 
+                etaupd = eta + W * v; 
+                NIS = v' / S * v; 
+                Pupd = (eye(size(P)) - W * H) * P; 
                 
                 % sanity check, remove for speed
-                if any(eig(Pupd) <= 0) % costly, remove when tested
-                    warn('EKFupdate got cov not PSD');
+                if obj.speed
+                    if any(eig(Pupd) <= 0) % costly, remove when tested
+                        warn('EKFupdate got cov not PSD');
+                    end
                 end
             else % all measurements are new landmarks
                 a = zeros(size(z, 2), 1);
@@ -232,7 +269,7 @@ classdef EKFSLAM
                     znew = z(zNewInds);
                     
                     % create new landmarks
-                    [etaupd, Pupd] = ...
+                    [etaupd, Pupd] = obj.addLandmarks(eta, P, znew);
                 end
             end  
         end
