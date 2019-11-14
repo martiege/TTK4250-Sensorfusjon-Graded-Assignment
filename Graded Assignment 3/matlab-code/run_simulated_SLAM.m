@@ -1,11 +1,11 @@
 load simulatedSLAM;
-K = numel(z);
+K = 10; %numel(z);
 %%
 Q = diag([0.1, 0.1, 0.1].^2); 
 R = diag([0.1, 0.1].^2); 
 doAsso = true;
 JCBBalphas = [0.9, 0.9]; % first is for joint compatibility, second is individual 
-slam = EKFSLAM(Q, R, doAsso, JCBBalphas);
+slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), 1);
 
 % allocate
 xpred = cell(1, K);

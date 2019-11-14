@@ -53,7 +53,7 @@ classdef EKFSLAM
             
             % check that jacobian is correct, remove for speed
             if obj.speed
-                if norm(F - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
+                if norm(Fx - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
                     error('some error in pred Jac')
                 end
             end
@@ -69,7 +69,7 @@ classdef EKFSLAM
               
             % check that the jacobian is correct, remove for speed
             if obj.speed
-                if norm(F - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
+                if norm(Fu - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
                     error('some error in pred Jac')
                 end
             end
@@ -196,7 +196,7 @@ classdef EKFSLAM
 
             % sanity check, remove for speed
             if obj.speed
-                if any(eig(Pupd) <= 0) % costly, remove when tested
+                if any(eig(Padded) <= 0) % costly, remove when tested
                     warning('EKFupdate got cov not PSD after adding a landmark');
                 end
             end
