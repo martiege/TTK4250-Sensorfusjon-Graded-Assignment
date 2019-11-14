@@ -5,10 +5,10 @@ classdef EKFSLAM
         doAsso
         alpha
         sensOffset
-        speed
+        doChecks
     end
     methods
-        function obj = EKFSLAM(Q, R, doAsso, alphas, sensorOffset, speed)
+        function obj = EKFSLAM(Q, R, doAsso, alphas, sensorOffset, doChecks)
             obj.Q = Q;
             obj.R = R;
             
@@ -27,9 +27,9 @@ classdef EKFSLAM
             end
             
             if nargin < 6
-                speed = false; 
+                doChecks = false; 
             end
-            obj.speed = speed; 
+            obj.doChecks = doChecks; 
             
             obj.sensOffset = sensorOffset(:);
         end
@@ -52,7 +52,7 @@ classdef EKFSLAM
                   0, 0,  1]; 
             
             % check that jacobian is correct, remove for speed
-            if obj.speed
+            if obj.doChecks
                 if norm(Fx - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
                     error('some error in pred Jac')
                 end
@@ -68,7 +68,7 @@ classdef EKFSLAM
                        0,      0, 1]; 
               
             % check that the jacobian is correct, remove for speed
-            if obj.speed
+            if obj.doChecks
                 if norm(Fu - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
                     error('some error in pred Jac')
                 end
@@ -92,7 +92,7 @@ classdef EKFSLAM
             etapred = [xpred; m];
             
             % check that the covariance makes sense
-            if obj.speed
+            if obj.doChecks
                 if any(eig(Ppred) <= 0) % costly, remove when tested
                     warn('EKFpredict got cov not PSD')
                 end
@@ -154,7 +154,7 @@ classdef EKFSLAM
             H = [Hx, Hm];
             
             % check that it is done correctly, remove for speed
-            if obj.speed
+            if obj.doChecks
                 if norm(H - jacobianFD(@(X) obj.h(X), eta, 1e-5), 'fro') > 1e-3
                     error('some error in meas Jac')
                 end
@@ -195,7 +195,7 @@ classdef EKFSLAM
             Padded(1:n, (n+1):end) = P(:, 1:3)*Gx';
 
             % sanity check, remove for speed
-            if obj.speed
+            if obj.doChecks
                 if any(eig(Padded) <= 0) % costly, remove when tested
                     warning('EKFupdate got cov not PSD after adding a landmark');
                 end
@@ -246,7 +246,7 @@ classdef EKFSLAM
                 Pupd = (eye(size(P)) - W * H) * P; 
                 
                 % sanity check, remove for speed
-                if obj.speed
+                if obj.doChecks
                     if any(eig(Pupd) <= 0) % costly, remove when tested
                         warn('EKFupdate got cov not PSD');
                     end
