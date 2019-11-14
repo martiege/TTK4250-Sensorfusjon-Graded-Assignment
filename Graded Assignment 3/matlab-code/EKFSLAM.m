@@ -63,13 +63,15 @@ classdef EKFSLAM
             % equation 11.14
             s_psi = sin(x(3)); 
             c_psi = cos(x(3));
-            Fu = [-s_psi, -c_psi, 0; 
-                   c_psi, -s_psi, 0; 
-                       0,      0, 1]; 
+            Fu = [c_psi, -s_psi, 0; 
+                  s_psi,  c_psi, 0; 
+                      0,      0, 1]; 
               
             % check that the jacobian is correct, remove for speed
             if obj.doChecks
-                if norm(Fu - jacobianFD(@(U) obj.f(x, U), x, 1e-5), 'fro') > 1e-3
+                if norm(Fu - jacobianFD(@(U) obj.f(x, U), u, 1e-5), 'fro') > 1e-3
+                    Fu
+                    jacobianFD(@(U) obj.f(x, U), u, 1e-5)
                     error('some error in pred Jac')
                 end
             end
@@ -93,7 +95,7 @@ classdef EKFSLAM
             
             % check that the covariance makes sense
             if obj.doChecks
-                if any(eig(Ppred) <= 0) % costly, remove when tested
+                if any(eig(P) <= 0) % costly, remove when tested
                     warn('EKFpredict got cov not PSD')
                 end
             end
@@ -146,7 +148,7 @@ classdef EKFSLAM
                 Hx(inds(1), :) = z_c(:, i)' / norm(z_c(:, i)) * jac_z_b; % jac z_r 
                 Hx(inds(2), :) = z_c(:, i)' * Rpihalf' / (norm(z_c(:, i))^2) * jac_z_b; % jac z_phi
             
-                % smack on a minus if wrong
+                % smack on a minus if wrong Hmmmmmm
                 Hm(inds, inds) = -Hx(inds, 1:2); % should be negative of the two first colums of Hx
             end
         
@@ -155,6 +157,7 @@ classdef EKFSLAM
             
             % check that it is done correctly, remove for speed
             if obj.doChecks
+                % TODO: Fix this
                 if norm(H - jacobianFD(@(X) obj.h(X), eta, 1e-5), 'fro') > 1e-3
                     error('some error in meas Jac')
                 end
