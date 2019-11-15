@@ -70,7 +70,6 @@ classdef EKFSLAM
             % check that the jacobian is correct, remove for speed
             if obj.doChecks
                 if norm(Fu - jacobianFD(@(U) obj.f(x, U), u, 1e-5), 'fro') > 1e-3
-                    Fu
                     jacobianFD(@(U) obj.f(x, U), u, 1e-5)
                     error('some error in pred Jac')
                 end
@@ -114,7 +113,7 @@ classdef EKFSLAM
             z_b = Rot * z_c; 
             
             % polar
-            zpred = [norm(z_b); atan2(z_b(2), z_b(1))]; 
+            zpred = [sqrt(sum(z_b.^2, 1)); atan2(z_b(2, :), z_b(1, :))]; 
             
             % make column again
             zpred = zpred(:); 
@@ -169,7 +168,7 @@ classdef EKFSLAM
             numLmk = numel(z)/2;
             
             % allocate
-            % lmnew = zeros(size(z));
+            lmnew = zeros(size(z));
             Gx = zeros(numLmk * 2, 3);
             Rall = zeros(numLmk * 2, numLmk * 2);
             
@@ -180,17 +179,18 @@ classdef EKFSLAM
                 inds = 2 * (j - 1) + [1, 2];
                 zj = z(inds);
                 
-                rot = rotmat2d(zj(2) + eta(3));
+                rot_meas = rotmat2d(zj(2)); 
+                rot_body = rotmat2d(eta(3));
 
-                % lmnew(inds) = ... % mean
+                lmnew(inds) = rot_body * (p2c(zj) + obj.sensOffset) + eta(1:2); % mean
                 Gx(inds, :) = [eye(2), zj(1) * [-sin(zj(2) + eta(3)); cos(zj(2) + eta(3))] + Rpsipluspihalf * obj.sensOffset]; % jac h^-1 wrt. x
-                Gz =  rot * diag([1, zj(1)]); % jac h^-1 wrt. z
+                Gz =  rot_meas * rot_body * diag([1, zj(1)]); % jac h^-1 wrt. z
                 Rall(inds, inds) = Gz * obj.R * Gz'; % the linearized measurement noise
 
             end
             
             % augment state
-            etaadded = [eta; z];
+            etaadded = [eta; lmnew];
             
             % add covariances
             Padded = blkdiag(P, Gx * P(1:3, 1:3) * Gx' + Rall);
