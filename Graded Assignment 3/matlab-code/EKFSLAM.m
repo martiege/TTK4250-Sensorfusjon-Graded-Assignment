@@ -86,7 +86,7 @@ classdef EKFSLAM
             Fu = obj.Fu(x, zOdo); 
             
             % in place for performance 
-            P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + obj.Q; % resize Q?
+            P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + Fu * obj.Q * Fu'; % resize Q?
             P(1:3, 4:end) = Fx * P(1:3, 4:end); 
             P(4:end, 1:3) = P(4:end, 1:3) * Fx'; 
             
