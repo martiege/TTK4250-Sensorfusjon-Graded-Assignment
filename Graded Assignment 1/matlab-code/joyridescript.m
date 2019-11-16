@@ -1,5 +1,14 @@
-% load data
+%% load data
 load joyridedata.mat;
+
+style = hgexport('factorystyle');
+style.bounds = 'tight';
+style.Format = 'eps';
+style.Width = 6;
+style.Height = 2.5;
+style.Resolution = 300;
+style.Units = 'inch';
+style.FixedFontSize = 12;
 
 plot_nearby_measurements = true;
 plot_estimate = true;
@@ -8,7 +17,6 @@ plot_estimate_vs_gt = true;
 print_probability = true;
 print_error = true;
 plot_nees = true;
-
 
 % plot measurements close to the trajectory
 Zmat = cell2mat(Z');
@@ -199,38 +207,36 @@ meanNumberOfCloseMeasurements = mean(closecount)
 % IMM-PDA
 
 % sensor 
-r = 10^2; %...
-PD = 0.961; %...
-lambda = 1e-5; %...
-gateSize = 5^2; %...
+r = (3e1)^2;
+PD = 0.97;
+lambda = 5e-5;
+gateSize = 5^2;
 
 % dynamic models
-qCV = 7.8e-4; % 0.05;% %...
-qCT = [2e-3, 5e-5]; % [0.005, 0.00025];%  %...
-qCVh = 0.5; %...
-modIdx = 1:3; 
+qCV = 5e-1;
+qCT = [1e-4, 2e-4];
+qCVh = 2e1;
+modIdx = 1:3;
 M = numel(modIdx);
 
 x0 = [7100; 3630; 0; 0; 0]; % taken from gt
-P0 = diag([25, 25, 10, 10, pi/6].^2); % seems reasonable?
-
+P0 = diag([5, 5, 4, 4, pi/6].^2);
 
 % markov chain (other parameterizations can be simpler to tune)
-PI11 = 0.90; %...
-PI22 = 0.91; %...
-PI33 = 0.86; %...
+PI11 = 0.9;
+PI22 = 0.96;
+PI33 = 0.85;
 
 PI = [PI11,         (1 - PI22)/2,   (1 - PI33)/2; 
       (1 - PI11)/2, PI22,           (1 - PI33)/2; 
       (1 - PI11)/2, (1 - PI22)/2,   PI33]; 
 
-
-PI = PI(modIdx, modIdx) % select the models to use
+PI = PI(modIdx, modIdx); % select the models to use
 PI = PI./sum(PI,1); % be sure to normalize
 assert(all(sum(PI, 1) - 1 < eps),'columns of PI must sum to 1')
 
-sprobs0 = [1, 0.5, 0.5]; %... 
-sprobs0 = sprobs0(modIdx)/sum(sprobs0(modIdx)) % select models and normalize
+sprobs0 = [1, 0.1, 0.5];
+sprobs0 = sprobs0(modIdx)/sum(sprobs0(modIdx)); % select models and normalize
 assert(all(sprobs0 > 0), 'probabilities must be positive')
 
 
@@ -294,7 +300,8 @@ ANEES = mean(NEES)
 colours = [[1, 0, 0]; [0, 1, 0]; [0, 0, 1]]; 
 
 if plot_estimate
-    figure(12); clf; hold on; grid on;
+    f = figure(12);
+    clf; hold on; grid on;
     [~, i_start] = max(probhat(:, 1)); 
     k_start = 1; 
     for k = 2:K
@@ -306,6 +313,7 @@ if plot_estimate
         end
     end
     plot(xest(1,k_start:K), xest(2,k_start:K), "Color", colours(i_start, :));
+    hgexport(f,'ga_1_estimated_trajectory.eps',style,'Format','eps')
 end
 
 if plot_estimate_and_measurements
