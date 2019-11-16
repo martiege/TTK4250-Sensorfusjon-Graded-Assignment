@@ -1,5 +1,16 @@
 % load data
 usePregen = true; % you can generate your own data if set to false
+
+% add style:
+style = hgexport('factorystyle');
+style.bounds = 'tight';
+style.Format = 'eps';
+style.Width = 6;
+style.Height = 2.5;
+style.Resolution = 300;
+style.Units = 'inch';
+style.FixedFontSize = 12;
+
 play_movie = false; 
 if usePregen
     load task2data.mat;
@@ -160,13 +171,13 @@ gateSize = 5^2; %...
 
 % dynamic models
 qCV = 8e-2; %...
-qCT = [8e-3, 2e-3]; %...
+qCT = [5e-3, 3e-4]; %...
 x0 = [0; 0; 2; 0; 0]; %...
 P0 = diag([25, 25, 3, 3, 0.0005].^2); %...
 
 % markov chain (you are free to parametrize this in another way)
-PI11 = 0.9; %...
-PI22 = 0.9; %... 
+PI11 = 0.92; %...
+PI22 = 0.95; %... 
 p10 =  0.95; %... 
 
 PI = [PI11, (1 - PI22); (1 - PI11), PI22]; assert(all(sum(PI, 1) == [1, 1]),'columns of PI must sum to 1')
@@ -231,11 +242,30 @@ CI4K = chi2inv([0.025, 0.975], K*4)/K
 ANEES = mean(NEES)
 
 % plot
+colours = [[1, 0, 0]; [0, 1, 0]]; 
+
 figure(6); clf; hold on; grid on;
-plot(xest(1,:), xest(2,:));
-plot(Xgt(1,:), Xgt(2, :));
+
 axis('equal')
 title(sprintf('posRMSE = %.3f, velRMSE = %.3f, peakPosDev = %.3f, peakVelDev = %.3f',posRMSE, velRMSE, peakPosDeviation, peakVelDeviation))
+[~, i_start] = max(probhat(:, 1)); 
+k_start = 1; 
+for k = 2:K
+    [~, i] = max(probhat(:, k)); 
+    if i ~= i_start
+        plot(xest(1,k_start:k), xest(2,k_start:k), "Color", colours(i_start, :));
+        k_start = k; 
+        i_start = i; 
+    end
+end
+plot(xest(1,k_start:K), xest(2,k_start:K), "Color", colours(i_start, :));
+p = plot(Xgt(1, :), Xgt(2, :), 'b--');
+p.Color(4) = 0.4;
+
+%title('Estimated and true trajectory');
+if export_plots
+    hgexport(f,'figures/ga_1_2_estimated_trajectory.eps',style,'Format','eps');
+end
 
 figure(7); clf; hold on; grid on;
 plot(xest(5,:))
@@ -252,6 +282,11 @@ ylabel('position error')
 subplot(2,1,2);
 plot(velerr); grid on;
 ylabel('velocity error')
+title('Estimation error');
+
+if export_plots
+    hgexport(f,'figures/ga_1_2_error.eps',style,'Format','eps');
+end
 
 figure(10); clf;
 subplot(3,1,1);
@@ -277,6 +312,9 @@ ciNEES = chi2inv([0.05, 0.95], 2);
 inCI = sum((NEESvel >= ciNEES(1)) .* (NEESvel <= ciNEES(2)))/K * 100;
 plot([1,K], repmat(ciNEES',[1,2])','r--')
 text(104, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+if export_plots
+    hgexport(f,'figures/ga_1_2_NEES.eps',style,'Format','eps');
+end
 %
 %estimation "movie"
 if play_movie

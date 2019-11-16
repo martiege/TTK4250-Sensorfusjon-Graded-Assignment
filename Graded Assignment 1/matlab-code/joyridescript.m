@@ -1,6 +1,7 @@
 %% load data
 load joyridedata.mat;
 
+% add style:
 style = hgexport('factorystyle');
 style.bounds = 'tight';
 style.Format = 'eps';
@@ -17,6 +18,7 @@ plot_estimate_vs_gt = true;
 print_probability = true;
 print_error = true;
 plot_nees = true;
+export_plots = true;
 
 % plot measurements close to the trajectory
 Zmat = cell2mat(Z');
@@ -207,7 +209,7 @@ meanNumberOfCloseMeasurements = mean(closecount)
 % IMM-PDA
 
 % sensor 
-r = (3e1)^2;
+r = (2.5e1)^2;
 PD = 0.97;
 lambda = 5e-5;
 gateSize = 5^2;
@@ -224,7 +226,7 @@ P0 = diag([5, 5, 4, 4, pi/6].^2);
 
 % markov chain (other parameterizations can be simpler to tune)
 PI11 = 0.9;
-PI22 = 0.96;
+PI22 = 0.95;
 PI33 = 0.85;
 
 PI = [PI11,         (1 - PI22)/2,   (1 - PI33)/2; 
@@ -312,8 +314,13 @@ if plot_estimate
             i_start = i; 
         end
     end
+    plot(Xgt(1, :), Xgt(2, :), '--', "Color", [150,150,150]/255);
     plot(xest(1,k_start:K), xest(2,k_start:K), "Color", colours(i_start, :));
-    hgexport(f,'ga_1_estimated_trajectory.eps',style,'Format','eps')
+    
+    title('Estimated and true trajectory');
+    if export_plots
+        hgexport(f,'figures/ga_1_joyride_estimated_trajectory.eps',style,'Format','eps');
+    end
 end
 
 if plot_estimate_and_measurements
@@ -369,17 +376,21 @@ if print_probability
 end
 
 if print_error
-    figure(9); clf;
+    f = figure(9); clf;
     subplot(2,1,1); 
     plot(poserr); grid on;
     ylabel('position error')
     subplot(2,1,2);
     plot(velerr); grid on;
     ylabel('velocity error')
+    title('Estimation error');
+    if export_plots
+        hgexport(f,'figures/ga_1_joyride_error.eps',style,'Format','eps');
+    end
 end
 
 if plot_nees
-    figure(10); clf;
+    f = figure(10); clf;
     subplot(3,1,1);
     plot(NEES); grid on; hold on;
     ylabel('NEES');
@@ -403,6 +414,10 @@ if plot_nees
     inCI = sum((NEESvel >= ciNEES(1)) .* (NEESvel <= ciNEES(2)))/K * 100;
     plot([1,K], repmat(ciNEES',[1,2])','r--')
     text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    
+    if export_plots
+        hgexport(f,'figures/ga_1_joyride_NEES.eps',style,'Format','eps');
+    end
 end
 %%
 %estimation "movie"
