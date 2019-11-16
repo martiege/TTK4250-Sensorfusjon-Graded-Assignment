@@ -2,13 +2,17 @@ load simulatedSLAM;
 K = numel(z);
 
 do_plots = true;
+plot_asso = false;
+plot_results = true;
+plot_nis = true; 
+plot_movie = false;
 %%
-Q = diag([0.1, 0.1, 0.1].^2); 
-R = diag([0.1, 0.1].^2); 
+Q = diag([5e-1, 5e-1, 5e-1].^2); 
+R = diag([1.2e-1, 1.2e-1].^2); % diag([1.2e-1, 1.2e-1].^2);
 doAsso = true;
 % 1 - chi2cdf([9, 25], 2)
 % [0.0111, 3.7267e-6]
-JCBBalphas = [1e-5, 1e-4]; % first is for joint compatibility, second is individual 
+JCBBalphas = [1e-5, 1e-3]; % first is for joint compatibility, second is individual 
 slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), 0);
 
 % allocate
@@ -42,7 +46,7 @@ for k = 1:N
         error('dimensions of mean and covariance do not match')
     end
     
-    if doAssoPlot && k > 1 && any(a{k} == 0) % uncoment last part to only see new creations
+    if doAssoPlot && k > 1 && do_plots && plot_asso % && any(a{k} == 0) % uncoment last part to only see new creations
         cla(axAsso); hold on;grid  on;
         zpred = reshape(slam.h(xpred{k}), 2, []);
         scatter(axAsso, z{k}(1, :), z{k}(2, :));
@@ -57,32 +61,33 @@ end
 toc
 
 % plotting
-figure(3);
-k = N;
-clf;
-%subplot(1,2,1);
-hold on;
+if do_plots && plot_results
+    figure(3);
+    k = N;
+    clf;
+    %subplot(1,2,1);
+    hold on;
 
-scatter(landmarks(1,:), landmarks(2,:), 'r^')
-scatter(xhat{k}(4:2:end), xhat{k}(5:2:end), 'b.')
+    scatter(landmarks(1,:), landmarks(2,:), 'r^')
+    scatter(xhat{k}(4:2:end), xhat{k}(5:2:end), 'b.')
 
-lh1 = plot(poseGT(1, 1:k), poseGT(2,1:k), 'r', 'DisplayName', 'gt');
-lh2 = plot(cellfun(@(x) x(1), xhat), cellfun(@(x) x(2), xhat), 'b', 'DisplayName', 'est');
+    lh1 = plot(poseGT(1, 1:k), poseGT(2,1:k), 'r', 'DisplayName', 'gt');
+    lh2 = plot(cellfun(@(x) x(1), xhat), cellfun(@(x) x(2), xhat), 'b', 'DisplayName', 'est');
 
-el = ellipse(xhat{k}(1:2),Phat{k}(1:2,1:2),5,200);
-plot(el(1,:),el(2,:),'b');
+    el = ellipse(xhat{k}(1:2),Phat{k}(1:2,1:2),5,200);
+    plot(el(1,:),el(2,:),'b');
 
-for ii=1:((size(Phat{k}, 1)-3)/2)
-   rI = squeeze(Phat{k}(3+[1,2]+(ii-1)*2,3+[1,2]+(ii-1)*2));
-   el = ellipse(xhat{k}(3 + (1:2) + (ii-1)*2),rI,5,200);
-   plot(el(1,:),el(2,:),'b');
+    for ii=1:((size(Phat{k}, 1)-3)/2)
+       rI = squeeze(Phat{k}(3+[1,2]+(ii-1)*2,3+[1,2]+(ii-1)*2));
+       el = ellipse(xhat{k}(3 + (1:2) + (ii-1)*2),rI,5,200);
+       plot(el(1,:),el(2,:),'b');
+    end
+
+    axis equal;
+    title('results')
+    legend([lh1, lh2])
+    grid on;
 end
-
-axis equal;
-title('results')
-legend([lh1, lh2])
-grid on;
-
 % subplot(1,2,2);
 % hold on;
 % % funF = @(delta) sum([poseGT(1:2,k) - rotmat2d(delta(3)) * xhat(1:2,k) - delta(1:2), landmarks - rotmat2d(delta(3)) * reshape(xhat(4:end,k),2,[]) - delta(1:2)].^2 ,[1,2]);
@@ -127,41 +132,43 @@ ACI = chi2inv([alpha/2; 1 - alpha/2], 1)/N % NOT CORRECT NOW
 CI = chi2inv([alpha/2; 1 - alpha/2], 1); % NOT CORRECT NOW
 warning('These consistency intervals have wrong degrees of freedom')
 
-figure(5); clf;
-hold on;
-plot(1:N, NIS(1:N));
-insideCI = mean((CI(1) < NIS) .* (NIS <= CI(2)))*100;
-plot([1, N], (CI*ones(1, 2))','r--');
+if do_plots && plot_nis
+    figure(5); clf;
+    hold on;
+    plot(1:N, NIS(1:N));
+    insideCI = mean((CI(1) < NIS) .* (NIS <= CI(2)))*100;
+    plot([1, N], (CI*ones(1, 2))','r--');
 
-title(sprintf('NIS over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
-grid on;
-ylabel('NIS');
-xlabel('timestep');
-
-%% run a movie
-pauseTime = 0.05;
-fig = figure(4);
-ax = gca;
-for k = 1:N
-    cla(ax); hold on;
-    scatter(ax, landmarks(1,:), landmarks(2,:), 'r^')
-    scatter(ax, xhat{k}(4:2:end), xhat{k}(5:2:end), 'b*')
-    plot(ax, poseGT(1, 1:k), poseGT(2,1:k), 'r-o','markerindices',10:10:k);
-    plot(ax, cellfun(@(x) x(1), xhat(1:k)), cellfun(@(x) x(2), xhat(1:k)), 'b-o','markerindices',10:10:k);
-    
-    if k > 1 % singular cov at k = 1
-        el = ellipse(xhat{k}(1:2),Phat{k}(1:2,1:2),5,200);
-        plot(ax,el(1,:),el(2,:),'b');
-    end
-    
-    for ii=1:((size(Phat{k}, 1)-3)/2)
-       rI = squeeze(Phat{k}(3+[1,2]+(ii-1)*2,3+[1,2]+(ii-1)*2)); 
-       el = ellipse(xhat{k}(3 + (1:2) + (ii-1)*2),rI,5,200);
-       plot(ax, el(1,:),el(2,:),'b');
-    end
-    
-    title(ax, sprintf('k = %d',k))
-    grid(ax, 'on');
-    pause(pauseTime);
+    title(sprintf('NIS over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
+    grid on;
+    ylabel('NIS');
+    xlabel('timestep');
 end
-        
+%% run a movie
+if do_plots && plot_movie
+    pauseTime = 0.05;
+    fig = figure(4);
+    ax = gca;
+    for k = 1:N
+        cla(ax); hold on;
+        scatter(ax, landmarks(1,:), landmarks(2,:), 'r^')
+        scatter(ax, xhat{k}(4:2:end), xhat{k}(5:2:end), 'b*')
+        plot(ax, poseGT(1, 1:k), poseGT(2,1:k), 'r-o','markerindices',10:10:k);
+        plot(ax, cellfun(@(x) x(1), xhat(1:k)), cellfun(@(x) x(2), xhat(1:k)), 'b-o','markerindices',10:10:k);
+
+        if k > 1 % singular cov at k = 1
+            el = ellipse(xhat{k}(1:2),Phat{k}(1:2,1:2),5,200);
+            plot(ax,el(1,:),el(2,:),'b');
+        end
+
+        for ii=1:((size(Phat{k}, 1)-3)/2)
+           rI = squeeze(Phat{k}(3+[1,2]+(ii-1)*2,3+[1,2]+(ii-1)*2)); 
+           el = ellipse(xhat{k}(3 + (1:2) + (ii-1)*2),rI,5,200);
+           plot(ax, el(1,:),el(2,:),'b');
+        end
+
+        title(ax, sprintf('k = %d',k))
+        grid(ax, 'on');
+        pause(pauseTime);
+    end
+end
