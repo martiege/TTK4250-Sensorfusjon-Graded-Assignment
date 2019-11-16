@@ -32,13 +32,13 @@ xupd = zeros(3, mK);
 a = cell(1, mK);
 
 % initialize TWEAK THESE TO BETTER BE ABLE TO COMPARE TO GPS
-eta = [Lo_m(1); La_m(2); 30 * pi /180]; % set the start to be relatable to GPS. 
+eta = [Lo_m(1); La_m(2); (30 + 10) * pi / 180]; % set the start to be relatable to GPS. 
 P = zeros(3,3); % we say that we start knowing where we are in our own local coordinates
 
 mk = 2; % first seems to be a bit off in timing
 t = timeOdo(1);
 tic
-N = 15000;
+N = 15000 / 10;
 
 
 doPlot = true;
