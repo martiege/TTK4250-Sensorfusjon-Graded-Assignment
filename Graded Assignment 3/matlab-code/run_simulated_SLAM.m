@@ -1,11 +1,14 @@
 load simulatedSLAM;
-K = numel(z) / 10;
+K = numel(z);
+
+do_plots = true;
 %%
-Q = diag([0.01, 0.01, 0.01].^2); 
-R = diag([0.01, 0.01].^2); 
+Q = diag([0.1, 0.1, 0.1].^2); 
+R = diag([0.1, 0.1].^2); 
 doAsso = true;
 % 1 - chi2cdf([9, 25], 2)
-JCBBalphas = [1e-2, 1e-2]; % first is for joint compatibility, second is individual 
+% [0.0111, 3.7267e-6]
+JCBBalphas = [1e-5, 1e-4]; % first is for joint compatibility, second is individual 
 slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), 0);
 
 % allocate
@@ -24,8 +27,9 @@ figure(10); clf;
 axAsso = gca;
 N = K;
 doAssoPlot = true; % set to true to se the associations that are done
+tic
 for k = 1:N
-    prcdone(k, N, 'Come on and SLAM', 1); 
+    prcdone(k, N, 'Come on and SLAM', 5); 
     
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
     if k < K
@@ -38,7 +42,7 @@ for k = 1:N
         error('dimensions of mean and covariance do not match')
     end
     
-    if doAssoPlot && k > 1 %&& any(a{k} == 0) % uncoment last part to only see new creations
+    if doAssoPlot && k > 1 && any(a{k} == 0) % uncoment last part to only see new creations
         cla(axAsso); hold on;grid  on;
         zpred = reshape(slam.h(xpred{k}), 2, []);
         scatter(axAsso, z{k}(1, :), z{k}(2, :));
@@ -50,6 +54,7 @@ for k = 1:N
         %pause();
     end
 end
+toc
 
 % plotting
 figure(3);
