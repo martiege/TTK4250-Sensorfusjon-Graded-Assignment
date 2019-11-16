@@ -1,5 +1,14 @@
-% load data
+%% load data
 load joyridedata.mat;
+
+style = hgexport('factorystyle');
+style.bounds = 'tight';
+style.Format = 'eps';
+style.Width = 6;
+style.Height = 2.5;
+style.Resolution = 300;
+style.Units = 'inch';
+style.FixedFontSize = 12;
 
 plot_nearby_measurements = true;
 plot_estimate = true;
@@ -8,7 +17,6 @@ plot_estimate_vs_gt = true;
 print_probability = true;
 print_error = true;
 plot_nees = true;
-
 
 % plot measurements close to the trajectory
 Zmat = cell2mat(Z');
@@ -292,7 +300,8 @@ ANEES = mean(NEES)
 colours = [[1, 0, 0]; [0, 1, 0]; [0, 0, 1]]; 
 
 if plot_estimate
-    figure(12); clf; hold on; grid on;
+    f = figure(12);
+    clf; hold on; grid on;
     [~, i_start] = max(probhat(:, 1)); 
     k_start = 1; 
     for k = 2:K
@@ -304,6 +313,7 @@ if plot_estimate
         end
     end
     plot(xest(1,k_start:K), xest(2,k_start:K), "Color", colours(i_start, :));
+    hgexport(f,'ga_1_estimated_trajectory.eps',style,'Format','eps')
 end
 
 if plot_estimate_and_measurements
