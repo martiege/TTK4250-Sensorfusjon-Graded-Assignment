@@ -130,8 +130,8 @@ classdef EKFSLAM
             m_minus_rho = m - x(1:2); 
             z_c = m_minus_rho - Rot * obj.sensOffset;
             
-            zpred = reshape(obj.h(eta), 2, []);
-            zr = zpred(1,:);
+%             zpred = reshape(obj.h(eta), 2, []);
+%             zr = zpred(1,:);
             
             Rpihalf = [0, -1; 1, 0]; 
             
@@ -182,7 +182,7 @@ classdef EKFSLAM
                 rot_meas = rotmat2d(zj(2)); 
                 rot_body = rotmat2d(eta(3));
 
-                lmnew(inds) = rot_body * (p2c(zj) + obj.sensOffset) + eta(1:2); % mean
+                lmnew(inds) = rot_body * (pol2cart(zj) + obj.sensOffset) + eta(1:2); % mean
                 Gx(inds, :) = [eye(2), zj(1) * [-sin(zj(2) + eta(3)); cos(zj(2) + eta(3))] + Rpsipluspihalf * obj.sensOffset]; % jac h^-1 wrt. x
                 Gz =  rot_meas * rot_body * diag([1, zj(1)]); % jac h^-1 wrt. z
                 Rall(inds, inds) = Gz * obj.R * Gz'; % the linearized measurement noise
