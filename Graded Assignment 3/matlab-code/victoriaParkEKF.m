@@ -17,13 +17,13 @@ car.a = 0.95; % laser distance in front of first axel
 car.b = 0.5; % laser distance to the left of center
 
 % the SLAM parameters
-sigmas = ...
+sigmas = [5e-2, 5e-2, 5e-2]; % ...
 CorrCoeff = [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1];
 Q = diag(sigmas) * [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1] * diag(sigmas); % (a bit at least) emprically found, feel free to change
 
-R = ...
+R = diag([5e-2, 5e-2].^2); % ...
 
-JCBBalphas = [..., ...]; % first is for joint compatibility, second is individual 
+JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
 slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
 
@@ -32,13 +32,13 @@ xupd = zeros(3, mK);
 a = cell(1, mK);
 
 % initialize TWEAK THESE TO BETTER BE ABLE TO COMPARE TO GPS
-eta = [Lo_m(1); La_m(2); 30 * pi /180]; % set the start to be relatable to GPS. 
+eta = [Lo_m(1); La_m(2); (30 + 10) * pi / 180]; % set the start to be relatable to GPS. 
 P = zeros(3,3); % we say that we start knowing where we are in our own local coordinates
 
 mk = 2; % first seems to be a bit off in timing
 t = timeOdo(1);
 tic
-N = 15000;
+N = 15000 / 10;
 
 
 doPlot = true;
