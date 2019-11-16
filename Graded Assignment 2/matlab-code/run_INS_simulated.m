@@ -6,10 +6,11 @@ loading_print        = true; % print percentage of loop completed
 plotting             = true; % plot
 plot_path            = true; % figure 1
 plot_state_estimates = true; % figure 2
-plot_state_error     = false; % figure 3
-plot_error_distance  = false; % figure 4
+plot_state_error     = true; % figure 3
+plot_error_distance  = true; % figure 4
 plot_consistency     = true; % figure 5
-plot_boxplot         = false; % figure 6
+plot_boxplot         = true; % figure 6
+export_plots         = true;
 
 %% Measurement noise
 % GNSS Position  measurement
