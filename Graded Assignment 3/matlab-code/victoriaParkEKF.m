@@ -9,6 +9,9 @@ timeGps = timeGps/1000;
 K = numel(timeOdo);
 mK = numel(timeLsr);
 
+do_plots = true;
+export_plots = true;
+
 %% Parameters
 % the car parameters
 car.L = 2.83; % axel distance
@@ -17,11 +20,11 @@ car.a = 0.95; % laser distance in front of first axel
 car.b = 0.5; % laser distance to the left of center
 
 % the SLAM parameters
-sigmas = [5e-2, 5e-2, 5e-2]; % ...
+sigmas = [5e-2, 5e-2, 5e-2];
 CorrCoeff = [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1];
 Q = diag(sigmas) * [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1] * diag(sigmas); % (a bit at least) emprically found, feel free to change
 
-R = diag([5e-2, 5e-2].^2); % ...
+R = diag([5e-2, 5e-2].^2);
 
 JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
@@ -40,8 +43,6 @@ t = timeOdo(1);
 tic
 N = 15000 / 10;
 
-
-doPlot = true;
 figure(1); clf;  hold on; grid on; axis equal;
 ax = gca;
 % cheeper to update plot data than to create new plot objects
@@ -62,9 +63,10 @@ for k = 1:N
         end
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(k), a{k}] = slam.update(eta, P, z);
+        NEESpos(k) = ((eta(1:2) - [La_m(k); Lo_m(k)])' / P(1:2, 1:2)) * (eta(1:2) - [La_m(k); Lo_m(k)]);  % This is crazy big??
         xupd(:, mk) = eta(1:3); 
         mk = mk + 1;
-        if doPlot
+        if do_plots
             lhPose.XData = [lhPose.XData, eta(1)];
             lhPose.YData = [lhPose.YData, eta(2)];
             shLmk.XData = eta(4:2:end);
@@ -94,13 +96,7 @@ for k = 1:N
     end
 end
 
-%% 
-figure(2); clf;  hold on; grid on; axis equal;
-plot(xupd(1, 1:(mk-1)), xupd(2, 1:(mk-1)))
-scatter(Lo_m(timeGps < timeOdo(N)), La_m(timeGps < timeOdo(N)), '.')
-scatter(eta(4:2:end), eta(5:2:end), 'rx');
-
-% what can we do with consistency..? divide by the number of associated
-% measurements? 
-figure(3); clf;
-plot(NIS);
+%% Plots and analysis
+if do_plots
+    plot_real_SLAM;
+end
