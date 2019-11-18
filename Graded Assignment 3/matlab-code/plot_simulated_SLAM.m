@@ -113,6 +113,9 @@ if plot_nees
     end
 end
 
+figure(10);
+plot(RMSE);
+
 %% run a movie
 if plot_movie
     pauseTime = 0.05;

@@ -10,7 +10,7 @@ K = numel(timeOdo);
 mK = numel(timeLsr);
 
 do_plots = true;
-export_plots = true;
+export_plots = false;
 
 %% Parameters
 % the car parameters
@@ -22,7 +22,7 @@ car.b = 0.5; % laser distance to the left of center
 % the SLAM parameters
 sigmas = [5e-2, 5e-2, 5e-2];
 CorrCoeff = [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1];
-Q = diag(sigmas) * [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1] * diag(sigmas); % (a bit at least) emprically found, feel free to change
+Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found, feel free to change
 
 R = diag([5e-2, 5e-2].^2);
 
@@ -35,8 +35,9 @@ xupd = zeros(3, mK);
 a = cell(1, mK);
 
 % initialize TWEAK THESE TO BETTER BE ABLE TO COMPARE TO GPS
-eta = [Lo_m(1); La_m(2); (30 + 10) * pi / 180]; % set the start to be relatable to GPS. 
+eta = [Lo_m(1); La_m(2); 38 * pi / 180]; % set the start to be relatable to GPS. 
 P = zeros(3,3); % we say that we start knowing where we are in our own local coordinates
+Pupd = cell(1, mK);
 
 mk = 2; % first seems to be a bit off in timing
 t = timeOdo(1);
@@ -63,8 +64,11 @@ for k = 1:N
         end
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(k), a{k}] = slam.update(eta, P, z);
-        NEESpos(k) = ((eta(1:2) - [La_m(k); Lo_m(k)])' / P(1:2, 1:2)) * (eta(1:2) - [La_m(k); Lo_m(k)]);  % This is crazy big??
-        xupd(:, mk) = eta(1:3); 
+                        
+        xupd(:, mk) = eta(1:3);
+        Pupd{mk} = P;
+        NEESpos(k) = ((xupd(1:2, mk) - [Lo_m(mk)'; La_m(mk)'])' / Pupd{mk}(1:2, 1:2)) * (xupd(1:2, mk) - [Lo_m(mk)'; La_m(mk)']);  % This is crazy big??
+                
         mk = mk + 1;
         if do_plots
             lhPose.XData = [lhPose.XData, eta(1)];

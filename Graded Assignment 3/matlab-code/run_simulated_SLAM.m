@@ -7,11 +7,11 @@ plot_results = true;
 plot_nis = true; 
 plot_nees = true; 
 plot_movie = false;
-export_plots = true;
+export_plots = false;
 
 %%
-Q = diag([5e-1, 5e-1, 5e-1].^2); 
-R = diag([1.2e-1, 1.2e-1].^2); % diag([1.2e-1, 1.2e-1].^2);
+Q = diag([5e-1, 5e-1, 5e-2].^2); 
+R = diag([1.5e-1, 1.5e-1].^2); % diag([1.2e-1, 1.2e-1].^2);
 doAsso = true;
 % 1 - chi2cdf([9, 25], 2)
 % [0.0111, 3.7267e-6]
@@ -39,7 +39,8 @@ for k = 1:N
     prcdone(k, N, 'Come on and SLAM', 5); 
     
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
-    NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k)); % ... 
+    NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k));
+    RMSE(k) = sqrt(sum((xhat{k}(1:2) - poseGT(1:2, k)).^2, 1));
     if k < K
         [xpred{k + 1}, Ppred{k + 1}] = slam.predict(xhat{k}, Phat{k}, odometry(:, k));
     end

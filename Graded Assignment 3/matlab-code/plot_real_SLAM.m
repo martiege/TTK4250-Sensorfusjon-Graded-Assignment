@@ -44,6 +44,7 @@ if export_plots
     hgexport(f,'figures/ga_3_real_NIS.eps',style,'Format','eps');
 end
 
+
 f = figure(4); clf;
 hold on;
 plot(NEESpos); grid on; hold on;
@@ -54,3 +55,8 @@ title(sprintf('NEES over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alp
 if export_plots
     hgexport(f,'figures/ga_3_real_NEES.eps',style,'Format','eps');
 end
+
+
+RMSE = sqrt(sum((xupd(1:2, 2:mk) - [Lo_m(2:mk)'; La_m(2:mk)']).^2, 1));
+figure(8); clf;
+plot(RMSE); grid on; 
