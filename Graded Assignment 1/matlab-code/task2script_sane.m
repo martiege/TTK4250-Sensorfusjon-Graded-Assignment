@@ -1,6 +1,6 @@
 % load data
 usePregen = true; % you can generate your own data if set to false
-export_plots = false; 
+export_plots = true; 
 
 % add style:
 style = hgexport('factorystyle');
@@ -245,7 +245,7 @@ ANEES = mean(NEES)
 % plot
 colours = [[1, 0, 0]; [0, 1, 0]]; 
 
-figure(6); clf; hold on; grid on;
+f = figure(6); clf; hold on; grid on;
 
 axis('equal')
 title(sprintf('posRMSE = %.3f, velRMSE = %.3f, peakPosDev = %.3f, peakVelDev = %.3f',posRMSE, velRMSE, peakPosDeviation, peakVelDeviation))
@@ -265,10 +265,10 @@ p.Color(4) = 0.4;
 
 %title('Estimated and true trajectory');
 if export_plots
-    hgexport(f,'figures/ga_1_2_estimated_trajectory.eps',style,'Format','eps');
+    hgexport(f,'figures/2_estimated_trajectory.eps',style,'Format','eps');
 end
 
-figure(7); clf; hold on; grid on;
+f = figure(7); clf; hold on; grid on;
 plot(xest(5,:))
 plot(Xgt(5,:))
 
@@ -286,10 +286,10 @@ ylabel('velocity error')
 title('Estimation error');
 
 if export_plots
-    hgexport(f,'figures/ga_1_2_error.eps',style,'Format','eps');
+    hgexport(f,'figures/2_error.eps',style,'Format','eps');
 end
 
-figure(10); clf;
+f = figure(10); clf;
 subplot(3,1,1);
 plot(NEES); grid on; hold on;
 ylabel('NEES');
@@ -317,7 +317,7 @@ plot([1,K], repmat(ciNEES',[1,2])','r--')
 title(sprintf('%.2f%% inside CI', inCI));
 % text(104, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
 if export_plots
-    hgexport(f,'figures/ga_1_2_NEES.eps',style,'Format','eps');
+    hgexport(f,'figures/2_NEES.eps',style,'Format','eps');
 end
 %
 %estimation "movie"
