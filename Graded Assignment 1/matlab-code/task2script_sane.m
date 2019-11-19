@@ -288,7 +288,7 @@ if export_plots
     hgexport(f,'figures/2_probs.eps',style,'Format','eps');
 end
 
-figure(9); clf;
+f = figure(9); clf;
 subplot(2,1,1); 
 plot(poserr); grid on;
 ylabel('position error')
