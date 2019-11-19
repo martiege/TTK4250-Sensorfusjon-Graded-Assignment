@@ -30,12 +30,14 @@ ACI = chi2inv([alpha/2; 1 - alpha/2], 1)/N % NOT CORRECT NOW
 CI = chi2inv([alpha/2; 1 - alpha/2], 1); % NOT CORRECT NOW
 warning('These consistency intervals have wrong degrees of freedom')
 
+mk = mk - 1
+
 f = figure(3); clf;
 plot(NIS);
 hold on;
-plot(1:N, NIS(1:N));
+plot(1:mk, NIS(1:mk));
 insideCI = mean((CI(1) < NIS) .* (NIS <= CI(2)))*100;
-plot([1, N], (CI*ones(1, 2))','r--');
+plot([1, mk], (CI*ones(1, 2))','r--');
 title(sprintf('NIS over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
 grid on;
 ylabel('NIS');
@@ -45,18 +47,7 @@ if export_plots
 end
 
 
-f = figure(4); clf;
-hold on;
-plot(NEESpos); grid on; hold on;
-ylabel('NEES in position');
-insideCI = mean((CI(1) < NEESpos) .* (NEESpos <= CI(2)))*100;  % Probably not correct
-plot([1, N], (CI*ones(1, 2))','r--');
-title(sprintf('NEES over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
-if export_plots
-    hgexport(f,'figures/ga_3_real_NEES.eps',style,'Format','eps');
-end
-
-
-RMSE = sqrt(sum((xupd(1:2, 2:mk) - [Lo_m(2:mk)'; La_m(2:mk)']).^2, 1));
+RMSEpos = sqrt(sum((xupd(1:2, 2:mk) - [Lo_m(2:mk)'; La_m(2:mk)']).^2, 1));
 figure(8); clf;
-plot(RMSE); grid on; 
+plot(RMSEpos); grid on;
+title('Position RMSE');

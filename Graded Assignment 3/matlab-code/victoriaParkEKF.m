@@ -8,6 +8,7 @@ timeLsr = double(TLsr)/1000; clear TLsr;
 timeGps = timeGps/1000;
 K = numel(timeOdo);
 mK = numel(timeLsr);
+gK = numel(timeGps);
 
 do_plots = true;
 export_plots = false;
@@ -20,7 +21,7 @@ car.a = 0.95; % laser distance in front of first axel
 car.b = 0.5; % laser distance to the left of center
 
 % the SLAM parameters
-sigmas = [5e-2, 5e-2, 5e-2];
+sigmas = [5e-1, 5e-1, 5e-2];
 CorrCoeff = [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1];
 Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found, feel free to change
 
@@ -33,6 +34,7 @@ slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
 % allocate
 xupd = zeros(3, mK);
 a = cell(1, mK);
+lmk = cell(1, mK);
 
 % initialize TWEAK THESE TO BETTER BE ABLE TO COMPARE TO GPS
 eta = [Lo_m(1); La_m(2); 38 * pi / 180]; % set the start to be relatable to GPS. 
@@ -40,6 +42,7 @@ P = zeros(3,3); % we say that we start knowing where we are in our own local coo
 Pupd = cell(1, mK);
 
 mk = 2; % first seems to be a bit off in timing
+gk = 2;
 t = timeOdo(1);
 tic
 N = 15000 / 10;
@@ -63,12 +66,11 @@ for k = 1:N
             error('negative time increment...')
         end
         z = detectTreesI16(LASER(mk,:));
-        [eta, P, NIS(k), a{k}] = slam.update(eta, P, z);
-                        
+        [eta, P, NIS(mk), a{k}] = slam.update(eta, P, z);
+        NIS(mk) = NIS(mk) / size(eta, 1) % scale NIS by dimension in order to better compare over time
         xupd(:, mk) = eta(1:3);
         Pupd{mk} = P;
-        NEESpos(k) = ((xupd(1:2, mk) - [Lo_m(mk)'; La_m(mk)'])' / Pupd{mk}(1:2, 1:2)) * (xupd(1:2, mk) - [Lo_m(mk)'; La_m(mk)']);  % This is crazy big??
-                
+    
         mk = mk + 1;
         if do_plots
             lhPose.XData = [lhPose.XData, eta(1)];
