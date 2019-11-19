@@ -56,7 +56,6 @@ if export_plots
     hgexport(f, 'figures/ga_2_real_state.eps', style, 'Format', 'eps');
 end
 
-
 f = figure(3);
 alpha = 0.05;
 CI3 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 3);
