@@ -11,6 +11,7 @@ set(0,'DefaultAxesColorOrder',cbrewer('qual','Set2',3))
 set(0,'DefaultLineLineWidth',1.2)  
 
 %% 
+R = rotmat2d(-30*pi/180);
 f = figure(2); clf;  hold on; grid on; axis equal;
 scatter(eta(4:2:end), eta(5:2:end), 'rx');
 s = scatter(Lo_m(timeGps < timeOdo(N)), La_m(timeGps < timeOdo(N)), 'filled');
