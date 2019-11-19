@@ -19,7 +19,6 @@
 *.cb2
 .*.lb
 
-latex-report/main.pdf
 
 ## Intermediate documents:
 *.dvi
@@ -31,7 +30,6 @@ latex-report/main.pdf
 # *.pdf
 
 ## Generated if empty string is given at "Please type another file name for output:"
-.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
