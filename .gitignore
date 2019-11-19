@@ -19,7 +19,7 @@
 *.cb2
 .*.lb
 
-main.pdf
+/latex-report/main.pdf
 
 ## Intermediate documents:
 *.dvi
