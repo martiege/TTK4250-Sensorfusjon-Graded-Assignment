@@ -319,7 +319,7 @@ if plot_estimate
     
     title('Estimated and true trajectory');
     if export_plots
-        hgexport(f,'figures/ga_1_joyride_estimated_trajectory.eps',style,'Format','eps');
+        hgexport(f,'figures/joyride_estimated_trajectory.eps',style,'Format','eps');
     end
 end
 
@@ -385,7 +385,7 @@ if print_error
     ylabel('velocity error')
     title('Estimation error');
     if export_plots
-        hgexport(f,'figures/ga_1_joyride_error.eps',style,'Format','eps');
+        hgexport(f,'figures/joyride_error.eps',style,'Format','eps');
     end
 end
 
@@ -416,7 +416,7 @@ if plot_nees
     text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
     
     if export_plots
-        hgexport(f,'figures/ga_1_joyride_NEES.eps',style,'Format','eps');
+        hgexport(f,'figures/joyride_NEES.eps',style,'Format','eps');
     end
 end
 %%
