@@ -4,9 +4,56 @@
 
 An error-state Kalman filter was implemented in MATLAB. For the relevant theory behind the implementation, see \cite{Sola} and \cite{Edmund}.
 
+\subsection{INS for simulated fixed wing UAV}
+
 \begin{figure}[!htb]
     \centering
-    \includegraphics{figures/ga_2/sim_trajectory.eps}
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/sim_trajectory.eps}
     \caption{}
-    \label{}
+    \label{fig:ga_2_sim_trajectory}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/ga_2/sim_state}
+		\caption{}
+		\label{fig:ga_2_sim_state}
+	\end{subfigure}%
+       ~
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/ga_2/sim_errors}
+		\caption{}
+		\label{fig:ga_2_sim_errors}
+	\end{subfigure}
+    \label{fig:ga_2_sim_state_errors} 
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/sim_consistency.eps}
+    \caption{}
+    \label{fig:ga_2_sim_consistency}
+\end{figure}
+
+\subsection{INS for real fixed wing UAV}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/real_trajectory.eps}
+    \caption{}
+    \label{fig:ga_2_real_trajectory}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/real_state.eps}
+    \caption{}
+    \label{fig:ga_2_real_state}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/real_consistency.eps}
+    \caption{}
+    \label{fig:ga_2_real_consistency}
 \end{figure}

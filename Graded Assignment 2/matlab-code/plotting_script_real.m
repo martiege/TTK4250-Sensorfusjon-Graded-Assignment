@@ -56,19 +56,21 @@ if export_plots
     hgexport(f, 'figures/ga_2_real_state.eps', style, 'Format', 'eps');
 end
 
+style.Height = 3;
+
 f = figure(3);
 alpha = 0.05;
 CI3 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 3);
 clf;
-plot(timeGNSS(1:(GNSSk - 1)) - timeIMU(1), NIS(1:GNSSk - 1));
+semilogy(timeGNSS(1:(GNSSk - 1)) - timeIMU(1), (NIS(1:GNSSk - 1)));
 grid on;
 hold on;
-plot([0, timeIMU(N) - timeIMU(1)], (CI3*ones(1,2))', 'r--');
+semilogy([0, timeIMU(N) - timeIMU(1)], (CI3*ones(1,2))', 'r--');
 xlim([0, 3670]);
 insideCI = mean((CI3(1) <= NIS).* (NIS <= CI3(2)));
-title(sprintf('NIS (%.3g%% inside %.3g%% confidence intervall)', 100*insideCI, 100*(1 - alpha)));
+title(sprintf('NIS in log scale (%.3g%% inside %.3g%% confidence intervall)', 100*insideCI, 100*(1 - alpha)));
 if export_plots
-    hgexport(f, 'figures/ga_2_real_errors.eps', style, 'Format', 'eps');
+    hgexport(f, 'figures/ga_2_real_consistency.eps', style, 'Format', 'eps');
 end
 
 figure(4); clf;
