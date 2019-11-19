@@ -363,7 +363,7 @@ if plot_estimate_vs_gt
 end
 
 if print_probability
-    figure(8); clf;
+    f = figure(8); clf;
     hold on;
     for s = modIdx
         hold on;
@@ -373,6 +373,10 @@ if print_probability
     % plot(probhat', "Color", colours');
     legend("CV low noise", "CT", "CV high noise");
     grid on;
+    
+    if export_plots
+        hgexport(f,'figures/joyride_probs.eps',style,'Format','eps');
+    end
 end
 
 if print_error
@@ -397,7 +401,8 @@ if plot_nees
     ciNEES = chi2inv([0.05, 0.95], 4);
     inCI = sum((NEES >= ciNEES(1)) .* (NEES <= ciNEES(2)))/K * 100;
     plot([1,K], repmat(ciNEES',[1,2])','r--')
-    text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    % text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    title(sprintf('%.2f%% inside CI', inCI)); 
 
     subplot(3,1,2);
     plot(NEESpos); grid on; hold on;
@@ -405,15 +410,17 @@ if plot_nees
     ciNEES = chi2inv([0.05, 0.95], 2);
     inCI = sum((NEESpos >= ciNEES(1)) .* (NEESpos <= ciNEES(2)))/K * 100;
     plot([1,K], repmat(ciNEES',[1,2])','r--')
-    text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
-
+    %text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    title(sprintf('%.2f%% inside CI', inCI)); 
+    
     subplot(3,1,3);
     plot(NEESvel); grid on; hold on;
     ylabel('NEESvel');
     ciNEES = chi2inv([0.05, 0.95], 2);
     inCI = sum((NEESvel >= ciNEES(1)) .* (NEESvel <= ciNEES(2)))/K * 100;
     plot([1,K], repmat(ciNEES',[1,2])','r--')
-    text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    % text(K*1.04, -5, sprintf('%.2f%% inside CI', inCI),'Rotation',90);
+    title(sprintf('%.2f%% inside CI', inCI)); 
     
     if export_plots
         hgexport(f,'figures/joyride_NEES.eps',style,'Format','eps');

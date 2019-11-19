@@ -243,7 +243,7 @@ CI4K = chi2inv([0.025, 0.975], K*4)/K
 ANEES = mean(NEES)
 
 % plot
-colours = [[1, 0, 0]; [0, 1, 0]]; 
+colours = [[1, 0, 0]; [0, 1, 0]; [0, 0, 1]]; ; 
 
 f = figure(6); clf; hold on; grid on;
 
@@ -272,9 +272,21 @@ f = figure(7); clf; hold on; grid on;
 plot(xest(5,:))
 plot(Xgt(5,:))
 
-figure(8); clf;
-plot(probhat');
+
+f = figure(8); clf;
+hold on;
+for s = 1:2
+    hold on;
+    plot(probhat(s, :)',  "Color", colours(s, :)); 
+end
+hold off;
+% plot(probhat', "Color", colours');
+legend("CV low noise", "CT", "CV high noise");
 grid on;
+
+if export_plots
+    hgexport(f,'figures/2_probs.eps',style,'Format','eps');
+end
 
 figure(9); clf;
 subplot(2,1,1); 
