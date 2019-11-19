@@ -1,5 +1,6 @@
 ### Ignore the local vscode preferences
 .vscode
+main.pdf
 
 # Created by https://www.gitignore.io/api/latex,matlab
 # Edit at https://www.gitignore.io/?templates=latex,matlab
