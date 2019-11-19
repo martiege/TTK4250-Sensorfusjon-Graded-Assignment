@@ -11,7 +11,7 @@ mK = numel(timeLsr);
 gK = numel(timeGps);
 
 do_plots = true;
-export_plots = false;
+export_plots = true;
 
 %% Parameters
 % the car parameters
@@ -45,7 +45,7 @@ mk = 2; % first seems to be a bit off in timing
 gk = 2;
 t = timeOdo(1);
 tic
-N = 15000 / 10;
+N = 15000;
 
 figure(1); clf;  hold on; grid on; axis equal;
 ax = gca;
@@ -67,7 +67,7 @@ for k = 1:N
         end
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(mk), a{k}] = slam.update(eta, P, z);
-        NIS(mk) = NIS(mk) / size(eta, 1) % scale NIS by dimension in order to better compare over time
+        NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
         xupd(:, mk) = eta(1:3);
         Pupd{mk} = P;
     
