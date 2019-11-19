@@ -10,7 +10,7 @@ plot_state_error     = true; % figure 3
 plot_error_distance  = true; % figure 4
 plot_consistency     = true; % figure 5
 plot_boxplot         = true; % figure 6
-export_plots         = true;
+export_plots         = false;
 
 %% Measurement noise
 % GNSS Position  measurement
