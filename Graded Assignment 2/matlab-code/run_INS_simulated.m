@@ -10,12 +10,14 @@ plot_state_error     = true; % figure 3
 plot_error_distance  = true; % figure 4
 plot_consistency     = true; % figure 5
 plot_boxplot         = true; % figure 6
-export_plots         = true;
+export_plots         = false;
 
 %% Measurement noise
 % GNSS Position  measurement
 p_std = 4e-1 * [1 1 1]'; % Measurement noise
 RGNSS = diag(p_std.^2);
+
+leverarm = [0;0;0];
 
 % accelerometer
 qA = (4e-2)^2; % accelerometer measurement noise covariance
