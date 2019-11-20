@@ -2,15 +2,19 @@
 
 % A full answer and result analysis is expected for task 3 and 4. For task 3 you should include a plot of the different states over time as well as the error states for your choice of parameters, in addition to NEES and NIS over time for the same set of parameters. In task 4 the same plots are expected, of course excluding anything that needs the ground truth. For both tasks it should be made clear why the parameters were chosen in terms of error metrics, consistency and overall result. Answers and analysis should connect theory and results to the real world, and show your understanding for the problem and solution. Try to connect the reuslts on the simulated data to the results of the real data where it is possible. 
 
-An error-state Kalman filter was implemented in MATLAB. For the relevant theory behind the implementation, see \cite{Sola} and \cite{Edmund}.
+An error-state Kalman filter (ESKF) for a GPS-aided fixed wing UAV was implemented in MATLAB. The implementation is based on the standard formulation in \cite{Sola}. But most notably, IMU sensor correction matrices has been added to counteract any mounting errors, scaling errors and orthogonality errors in the accelerometer and rate gyro. Furthermore, leverarm componsation for the GNSS receiver is also implemented.
 
 \subsection{INS for simulated fixed wing UAV}
 
-Tuning values, how we tuned (NIS, NEES, RMSE, want bias to converge somewhat, not wander)
+%Tuning values, how we tuned (NIS, NEES, RMSE, want bias to converge somewhat, not wander, commen sense)
 
-Heading observability - heading error large, spikes?? Also see this in attitude NEES compared to others.
+%Heading observability - heading error large, spikes?? Also see this in attitude NEES compared to others.
 
-Misalignment matrix
+%Misalignment matrix
+
+% discuss bias models
+
+The ESKF was first tuned to a simulated dataset. The GNSS measurement standard deviation was tuned to $0.4$ in each degree of freedom. The measurement noise covariance is therefore $R=0.16 I ^2$. For the accelerometer the measurement noise covariance and bias driving noise covariance was tuned to be $q_{a} = (\SI{4e-2})^2$ and $ q_{ab} = (\SI{1e-3})^2$ respectively. Similarily for the rate gyro the measurement noise covariance and bias driving noise covariance was tuned to be $q_{\omega} = (\SI{8e-4})^2$ and $q_{\omega b} = (\SI{1e-6})^2$ respectively. Finally the time constants in the Gauss-Markov bias processes were both tuned to be $T_b = \SI{1e-8}{s}$.
 
 \begin{figure}[!htb]
     \centering
