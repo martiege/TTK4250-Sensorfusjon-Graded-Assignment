@@ -18,7 +18,7 @@ The ESKF was first tuned to a simulated dataset. The GNSS measurement standard d
 
 Firstly, the tuning was based on common sense. For instance the GNSS measurement covariance was initially based on a reasonable guess from a physical perspective and then more thoroughly tuned. This more thorough tuning was based on calculating and plotting the errors in position, velocity, attitude and bias. Furthermore the corresponding NEES in position, velocity, attitude and biases, as well as the overall NEES and NIS was calculated and analysed during the tuning process. 
 
-The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, the state and state errors are presented in \cref{fig:ga_2_sim_state} and \cref{fig:ga_2_sim_errors} and finally the consistency analysis is presented in \cref{fig:ga_2_sim_consistency}. Note that the consistency figures are presented in logarithmic scale.
+The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, the state and state errors are presented in \cref{fig:ga_2_sim_state} and \cref{fig:ga_2_sim_errors} and finally the consistency analysis is presented in \cref{fig:ga_2_sim_consistency}. Note that the consistency figures are presented in logarithmic scale. Furthermore, the average NEES and NIS is approximately 18.57 and 2.27 respectively.
 
 \begin{figure}[ht]
     \centering
@@ -66,7 +66,12 @@ Finally, it must be said that finding the sensor correction matrices is not triv
 
 % tuning a lot the same, but we started by looking at datasheet + simulated values. No NEES now, only NIS. Used GNSS accuracy thing. 
 
-The ESKF was then tuned to a real dataset from a fixed-wing UAV flight. The sensors onboard was a STIM300 IMU and a u-blox M8 GNSS receiver. 
+The ESKF was then tuned to a real dataset from a fixed-wing UAV flight. The sensors onboard was a STIM300 IMU and an u-blox M8 GNSS receiver. The GNSS receiver produces an accuracy estimate in standard deviation while operating. This was scaled by a gain parameter, squared and used as a time-varying GNSS measurement noise covariance signal. The gain was tuned to be $k_x = 0.5$.
+
+The IMU measurement noise covariances and bias driving noise covariances were tuned from the Allan variances in the STIM300 datasheet \cite{stim300}. Specifically, the gyro noise and bias noise root Allan variance is \SI{0.15}{\deg\per\sqrt\hour} and \SI{0.5}{\deg\per\hour} respectively. The accelerometer noise and bias noise root Allan variance is \SI{0.06}{\meter\per\second\sqrt\hour} and \SI{0.05}{\meter g} respectively. These values were scaled to the correct units and used as initial parameters in the ESKF. The values were then tuned such that a satisfactory estimate and NIS were produced. The final tuning parameters were 
+then $q_{a} = (\SI{9.8e-4})^2$, $ q_{ab} = (\SI{4.9e-4})^2$, $q_{\omega} = (\SI{4.9e-6})^2$ and $q_{\omega b} = (\SI{2.4e-6})^2$. When comparing to the simulated case, one observes that the bias noise standard deviations are of about the same magnitude, while the measurement noise standard deviations are about two magnitudes larger in the simulated case.
+
+The resulting UAV trajectory estimate is presented in \cref{fig:ga_2_real_trajectory} and the estimated states are presented in \cref{fig:ga_2_real_state}. Finally the NIS is presented in \cref{fig:ga_2_real_consistency}. The average NIS was approximately 3.01. Note that since this is a real dataset, we no longer have the ground truth, and can therefore not calculate the estimation errors and NEES. This certainly makes tuning more challenging, even though access to the IMU datasheet is useful. This shows how it is often helpful to test filter implementations on simulated data first, as has been done in all of the assignments discussed in this report. The Gauss-Markov bias time constants were both tuned to $T_b = \SI{1e16}{s}$, effectively making the bias processes random walks processes.
 
 \begin{figure}[ht]
     \centering
@@ -86,6 +91,6 @@ The ESKF was then tuned to a real dataset from a fixed-wing UAV flight. The sens
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/ga_2/real_consistency.eps}
-    \caption{UAV ESKF NIS}
+    \caption{UAV ESKF logarithmic NIS}
     \label{fig:ga_2_real_consistency}
 \end{figure}

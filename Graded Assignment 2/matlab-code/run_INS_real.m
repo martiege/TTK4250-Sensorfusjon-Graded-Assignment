@@ -71,7 +71,7 @@ for k = K_start:N
     end
 
     if k < K
-        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
+        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k+1), zGyro(:, k+1), dt);
     end  
 end
 %% plots

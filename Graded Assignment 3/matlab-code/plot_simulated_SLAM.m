@@ -99,20 +99,6 @@ if plot_nis
     end
 end
 
-if plot_nees
-    f = figure(6); clf;
-    hold on;
-    plot(NEESpose); grid on; hold on;
-    ylabel('NEES in pose');
-    insideCI = mean((CI(1) < NEESpose) .* (NEESpose <= CI(2)))*100;  % Probably not correct
-    plot([1, N], (CI*ones(1, 2))','r--');
-    title(sprintf('NEES over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
-    
-    if export_plots
-        hgexport(f,'figures/ga_3_sim_NEES.eps',style,'Format','eps');
-    end
-end
-
 figure(10);
 plot(RMSE);
 

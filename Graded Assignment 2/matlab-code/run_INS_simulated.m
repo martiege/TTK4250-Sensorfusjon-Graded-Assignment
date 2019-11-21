@@ -17,14 +17,12 @@ export_plots         = false;
 p_std = 4e-1 * [1 1 1]'; % Measurement noise
 RGNSS = diag(p_std.^2);
 
-leverarm = [0;0;0];
-
 % accelerometer
 qA = (4e-2)^2; % accelerometer measurement noise covariance
-qAb = (1e-3)^2; % accelerometer bias driving noise covariance
+qAb = (4e-4)^2; % accelerometer bias driving noise covariance
 pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (8e-4)^2; % gyro measurement noise covariance
+qG = (6e-4)^2; % gyro measurement noise covariance
 qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
@@ -72,7 +70,7 @@ for k = 1:N
         eskf.NEES(xest(:, k), Pest(:, :, k), xtrue(:, k));
     
     if k < N
-        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
+        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k+1), zGyro(:, k+1), dt);
     end
 end
 

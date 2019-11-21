@@ -73,6 +73,8 @@ if export_plots
     hgexport(f, 'figures/ga_2_real_consistency.eps', style, 'Format', 'eps');
 end
 
+ANIS = mean(NIS);
+
 figure(4); clf;
 gaussCompare = sum(randn(3, numel(NIS)).^2, 1);
 boxplot([NIS', gaussCompare'],'notch','on',...

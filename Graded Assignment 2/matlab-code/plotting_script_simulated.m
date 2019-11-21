@@ -142,6 +142,8 @@ end
 alpha = 0.05;
 CI15 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 15);
 CI3 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 3);
+ANEES = mean(NEES)
+ANIS = mean(NIS
 
 if plot_consistency
     f = figure(5); clf;
