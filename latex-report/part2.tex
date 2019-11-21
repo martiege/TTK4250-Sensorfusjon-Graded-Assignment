@@ -24,13 +24,13 @@ The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, th
     \centering
 	\begin{subfigure}[b]{0.45\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/sim_state}
-		\caption{UAV states}
+		\caption{UAV ESKF states}
 		\label{fig:ga_2_sim_state}
 	\end{subfigure}%
        ~
 	\begin{subfigure}[b]{0.45\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/sim_errors}
-		\caption{UAV state errors}
+		\caption{UAV ESKF state errors}
 		\label{fig:ga_2_sim_errors}
 	\end{subfigure}
     \label{fig:ga_2_sim_state_errors} 
@@ -46,7 +46,7 @@ The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, th
        ~
 	\begin{subfigure}[b]{0.45\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/sim_consistency.eps}
-    \caption{UAV consistency analysis}
+    \caption{UAV ESKF consistency analysis}
     \label{fig:ga_2_sim_consistency}
 	\end{subfigure}
     \label{fig:ga_2_sim_trajectory_consistency} 
@@ -63,39 +63,29 @@ Then the NEES and NIS naturally also worsens significantly. While the position a
 Finally, it must be said that finding the sensor correction matrices is not trivial, and the results will be empirically based and not absolutely correct. Therefore we will always have some sensor misalignment and miss-scaling in a physical system, especially since these matrices will, in reality, be time-varying.
 
 \subsection{INS for real fixed-wing UAV}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.6\linewidth]{figures/ga_2/real_trajectory.eps}
-    \caption{}
-    \label{fig:ga_2_real_trajectory}
-\end{figure}
 
-\begin{figure}[!htb]
+% tuning a lot the same, but we started by looking at datasheet + simulated values. No NEES now, only NIS. Used GNSS accuracy thing. 
+
+The ESKF was then tuned to a real dataset from a fixed-wing UAV flight. The sensors onboard was a STIM300 IMU and a u-blox M8 GNSS receiver. 
+
+\begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/ga_2/real_state.eps}
-    \caption{}
-    \label{fig:ga_2_real_state}
+    \begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/ga_2/real_trajectory.eps}
+        \caption{Estimated UAV trajectory}
+        \label{fig:ga_2_real_trajectory}
+	\end{subfigure}%
+    \begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{figures/ga_2/real_state.eps}
+        \caption{UAV ESKF states}
+        \label{fig:ga_2_real_state}
+	\end{subfigure}
+    \label{fig:ga_2_real_trajectory_state}
 \end{figure}
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/ga_2/real_consistency.eps}
-    \caption{}
+    \caption{UAV ESKF NIS}
     \label{fig:ga_2_real_consistency}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-	\begin{subfigure}[b]{0.45\textwidth}
-		\includegraphics[width=\textwidth]{figures/ga_2/real_trajectory.eps}
-    \caption{}
-    \label{fig:ga_2_real_trajectory}
-	\end{subfigure}%
-       ~
-	\begin{subfigure}[b]{0.45\textwidth}
-		\includegraphics[width=\textwidth]{figures/ga_2/real_consistency.eps}
-    \caption{}
-    \label{fig:ga_2_real_consistency}
-	\end{subfigure}
-    \label{fig:ga_2_real_trajectory_consistency} 
 \end{figure}
