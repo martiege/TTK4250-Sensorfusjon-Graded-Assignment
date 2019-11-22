@@ -6,8 +6,8 @@ plot_asso = false;
 plot_results = true;
 plot_nis = true; 
 plot_movie = false;
-export_plots = false;
-plot_inf_matrix = false; 
+export_plots = true;
+plot_info_matrix = false; 
 
 do_slam_checks = false; 
 
@@ -39,7 +39,7 @@ for k = 1:N
     k
     
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
-    if plot_inf_matrix
+    if plot_info_matrix
         figure(13);
         imagesc(inv(Phat{k}));
     end
