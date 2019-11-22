@@ -9,12 +9,14 @@ plot_movie = false;
 export_plots = false;
 plot_inf_matrix = false; 
 
+do_slam_checks = false; 
+
 %%
-Q = diag([5e-1, 5e-1, 5e-2].^2); % diag([5e-1, 5e-1, 5e-2].^2); 
-R = diag([1.5e-1, 1.5e-1].^2); 
+Q = diag([1e-2, 1e-2, 6e-3].^2); % diag([1e-2, 1e-2, 1e-2].^2); % diag([5e-1, 5e-1, 5e-2].^2); 
+R = diag([5.75e-2, 5.75e-2].^2);  % diag([5e-2, 5e-2].^2); % diag([1.5e-1, 1.5e-1].^2); 
 doAsso = true;
-JCBBalphas = [1e-5, 1e-3]; % first is for joint compatibility, second is individual 
-slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), 0);
+JCBBalphas = [1e-10, 1e-5]; % first is for joint compatibility, second is individual 
+slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), do_slam_checks);
 
 % allocate
 xpred = cell(1, K);
@@ -34,6 +36,8 @@ N = K;
 doAssoPlot = true; % set to true to se the associations that are done
 tic
 for k = 1:N
+    k
+    
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
     if plot_inf_matrix
         figure(13);
