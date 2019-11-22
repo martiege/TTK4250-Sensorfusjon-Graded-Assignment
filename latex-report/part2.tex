@@ -97,7 +97,7 @@ The resulting UAV trajectory estimate is presented in \cref{fig:ga_2_real_trajec
 
 We observe how the estimated trajectory fits nicely with the GNSS data as one would expect. The estimates are also nicely behaved, while the state trajectories are naturally a lot less smooth in this case compared to the simulation, which is to be expected. In particular, the biases converge over time, with some corrections throughout the flight when the UAV turns and the system is excited. From the heading plot it seems like the bias estimates work well, as there is no noticeable drift in heading. For most of the flight, we see that the heading changes between two almost constant values. This is reflected by the UAV manoeuvres in \cref{fig:ga_2_real_trajectory}, where the UAV flies straight north, then quickly does a U-turn, then flies straight south, then does a U-turn and so on. 
 
-When the sensor correction matrices were set to identity for the real data, it was observed again that thanks to the GNSS measurements the position and velocity estimates are still viable. But the biases do not converge to the same values as before. Interestingly, the heading quickly becomes the opposite of what it was before, and the roll and pitch estimates "switch places", as can be seen in \cref{fig}. This is due to the fact that the sensor frame is no longer approximately aligned with the body frame. While in the simulated case the sensor correction matrices were close to identity, for this data set they are
+When the sensor correction matrices were set to identity for the real data, it was observed again that thanks to the GNSS measurements the position and velocity estimates are still viable. But the biases do not converge to the same values as before. Interestingly, the heading quickly becomes the opposite of what it was before, and the roll and pitch estimates "switch places", as can be seen in \cref{fig:ga_2_real_bad}. This is due to the fact that the sensor frame is no longer approximately aligned with the body frame. While in the simulated case the sensor correction matrices were close to identity, for this data set they are
 \begin{equation}
     S_g = \begin{bmatrix}
         -0.0243 & 0.9981  & 0.0454 \\
@@ -116,7 +116,7 @@ Now notice that $S_g \approx R_z(-\frac{\pi}{2}), S_a \approx R_z(-\frac{\pi}{2}
     \centering
     \includegraphics[width=0.8\linewidth]{figures/ga_2/real_bad_heading.eps}
     \caption{UAV estimated attitude without sensor error correction}
-    \label{fig:ga_2_real_consistency}
+    \label{fig:ga_2_real_bad}
 \end{figure}
 
 % discuss assumptions, linearity, convergence - knowing initial values? Robustness
