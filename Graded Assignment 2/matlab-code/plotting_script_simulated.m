@@ -6,7 +6,7 @@ style.Width = 8;
 style.Height = 6;
 style.Resolution = 300;
 style.Units = 'inch';
-style.FixedFontSize = 10;
+style.FixedFontSize = 9;
 
 if plot_path
     f = figure(1);
@@ -17,8 +17,10 @@ if plot_path
     grid on; 
     xlabel('East [m]')
     ylabel('North [m]')
-    zlabel('Altitude [m]')
-    
+    %zlabel('Altitude [m]')
+    view(2)
+    title('Position estimate vs. GNSS in yx-plane');
+    legend('Position estimate', 'GNSS measurements', 'Location', 'southwest');
     if export_plots
         hgexport(f,'figures/ga_2_sim_trajectory.eps',style,'Format','eps');
     end
@@ -140,62 +142,70 @@ end
 alpha = 0.05;
 CI15 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 15);
 CI3 = chi2inv([alpha/2; 1 - alpha/2; 0.5], 3);
+ANEES = mean(NEES)
+ANIS = mean(NIS)
 
 if plot_consistency
     f = figure(5); clf;
     subplot(4,2,1);
-    plot((0:(N-1))*dt, NEES(1:N));
+    semilogy((0:(N-1))*dt, (NEES(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI15*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, ((CI15*ones(1,2)))', 'r--');
     insideCI = mean((CI15(1) <= NEES).* (NEES <= CI15(2)));
-    title(sprintf('total NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('total NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,2,2);
-    plot((0:(N-1))*dt, NEESpos(1:N));
+    semilogy((0:(N-1))*dt, (NEESpos(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NEESpos).* (NEESpos <= CI3(2)));
-    title(sprintf('position NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('position NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,2,3);
-    plot((0:(N-1))*dt, NEESvel(1:N));
+    semilogy((0:(N-1))*dt, (NEESvel(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NEESvel).* (NEESvel <= CI3(2)));
-    title(sprintf('velocity NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('velocity NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,2,4);
-    plot((0:(N-1))*dt, NEESatt(1:N));
+    semilogy((0:(N-1))*dt, (NEESatt(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NEESatt).* (NEESatt <= CI3(2)));
-    title(sprintf('attitude NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('attitude NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,2,5);
-    plot((0:(N-1))*dt, NEESaccbias(1:N));
+    semilogy((0:(N-1))*dt, (NEESaccbias(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NEESaccbias).* (NEESaccbias <= CI3(2)));
-    title(sprintf('accelerometer bias NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('accelerometer bias NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,2,6);
-    plot((0:(N-1))*dt, NEESgyrobias(1:N));
+    semilogy((0:(N-1))*dt, (NEESgyrobias(1:N)));
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    xlim([0, 900]);
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NEESgyrobias).* (NEESgyrobias <= CI3(2)));
-    title(sprintf('gyro bias NEES (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
+    title(sprintf('gyro bias NEES in log scale (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
 
     subplot(4,1,4)
-    plot(0:(numel(NIS)-1), NIS);
+    semilogy(0:(numel(NIS)-1), NIS);
     grid on;
     hold on;
-    plot([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
+    semilogy([0, N-1]*dt, (CI3*ones(1,2))', 'r--');
     insideCI = mean((CI3(1) <= NIS).* (NIS <= CI3(2)));
     title(sprintf('NIS (%.3g%% inside %.3g%% CI)', 100*insideCI, 100*(1 - alpha)));
     

@@ -5,7 +5,6 @@ do_plots = true;
 plot_asso = false;
 plot_results = true;
 plot_nis = true; 
-plot_nees = true; 
 plot_movie = false;
 export_plots = false;
 
@@ -39,6 +38,10 @@ for k = 1:N
     prcdone(k, N, 'Come on and SLAM', 5); 
     
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
+    figure(13);
+    imagesc(inv(Phat{k}));
+    drawnow;
+    
     NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k));
     RMSE(k) = sqrt(sum((xhat{k}(1:2) - poseGT(1:2, k)).^2, 1));
     if k < K

@@ -19,12 +19,15 @@ RGNSS = diag(p_std.^2);
 
 % accelerometer
 qA = (4e-2)^2; % accelerometer measurement noise covariance
-qAb = (1e-3)^2; % accelerometer bias driving noise covariance
+qAb = (4e-4)^2; % accelerometer bias driving noise covariance
 pAcc = 1e-8; % accelerometer bias reciprocal time constant
 
-qG = (8e-4)^2; % gyro measurement noise covariance
+qG = (6e-4)^2; % gyro measurement noise covariance
 qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
+
+S_a = eye(3);
+S_g = eye(3);
 
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
@@ -41,7 +44,7 @@ Ppred = zeros(15, 15, steps);
 %% initialize
 xpred(1:3, 1) = [0, 0, -5]'; % starting 5 meters above ground
 xpred(4:6, 1) = [20, 0, 0]'; % starting at 20 m/s due north
-xpred(7, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
+xpred(8, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
 
 Ppred(1:3, 1:3, 1) = 1e-3*eye(3); 
 Ppred(4:6, 4:6, 1) = 1e-3*eye(3);
@@ -70,7 +73,7 @@ for k = 1:N
         eskf.NEES(xest(:, k), Pest(:, :, k), xtrue(:, k));
     
     if k < N
-        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k), zGyro(:, k), dt);
+        [xpred(:, k+1),  Ppred(:, :, k+1)] = eskf.predict(xest(:, k), Pest(:, :, k), zAcc(:, k+1), zGyro(:, k+1), dt);
     end
 end
 
