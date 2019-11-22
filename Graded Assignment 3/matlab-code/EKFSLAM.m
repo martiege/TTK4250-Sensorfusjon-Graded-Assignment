@@ -51,7 +51,7 @@ classdef EKFSLAM
                   0, 1,  u(1) * c_psi - u(2) * s_psi; 
                   0, 0,  1]; 
             
-            % check that jacobian is correct, remove for speed
+            % Check that jacobian is correct, remove for speed
             if obj.doChecks
                 if norm(Fx - jacobianFD(@(X) obj.f(X, u), x, 1e-5), 'fro') > 1e-3
                     error('some error in pred Jac')
@@ -67,7 +67,7 @@ classdef EKFSLAM
                   s_psi,  c_psi, 0; 
                       0,      0, 1]; 
               
-            % check that the jacobian is correct, remove for speed
+            % Check that the jacobian is correct, remove for speed
             if obj.doChecks
                 if norm(Fu - jacobianFD(@(U) obj.f(x, U), u, 1e-5), 'fro') > 1e-3
                     jacobianFD(@(U) obj.f(x, U), u, 1e-5)
@@ -84,15 +84,15 @@ classdef EKFSLAM
             Fx = obj.Fx(x, zOdo); 
             Fu = obj.Fu(x, zOdo); 
             
-            % in place for performance 
-            P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + Fu * obj.Q * Fu'; % resize Q?
+            % Predict covariance in place for performance 
+            P(1:3, 1:3) = Fx * P(1:3, 1:3) * Fx' + Fu * obj.Q * Fu';
             P(1:3, 4:end) = Fx * P(1:3, 4:end); 
             P(4:end, 1:3) = P(4:end, 1:3) * Fx'; 
             
-            % concatenate pose and landmarks again
+            % Concatenate pose and landmarks again
             etapred = [xpred; m];
             
-            % check that the covariance makes sense
+            % Check that the covariance makes sense
             if obj.doChecks
                 if any(eig(P) <= 0) % costly, remove when tested
                     warn('EKFpredict got cov not PSD')
@@ -104,18 +104,18 @@ classdef EKFSLAM
             x = eta(1:3); % pose 
             m = reshape(eta(4:end), 2 ,[]); % map (2 x m now)
             
-            Rot = rotmat2d(-x(3)); % rot from world to body
+            Rot = rotmat2d(-x(3)); % Rotation matrix from world to body
             
-            % cartesian measurement in world
+            % Cartesian measurement in world:
             z_c = m - x(1:2) - Rot' * obj.sensOffset;
             
-            % in body
+            % Measurement in body:
             z_b = Rot * z_c; 
             
-            % polar
+            % Do polar coordinate transformation:
             zpred = [sqrt(sum(z_b.^2, 1)); atan2(z_b(2, :), z_b(1, :))]; 
             
-            % make column again
+            % Make column again:
             zpred = zpred(:); 
         end
         
@@ -129,13 +129,10 @@ classdef EKFSLAM
             
             m_minus_rho = m - x(1:2); 
             z_c = m_minus_rho - Rot * obj.sensOffset;
-            
-%             zpred = reshape(obj.h(eta), 2, []);
-%             zr = zpred(1,:);
-            
+
             Rpihalf = [0, -1; 1, 0]; 
             
-            % allocate
+            % Allocate
             Hx = zeros(2 * numM, 3); % pose columns
             Hm = zeros(2 * numM, 2 * numM); % map columns (the rest)
             
@@ -147,16 +144,14 @@ classdef EKFSLAM
                 Hx(inds(1), :) = z_c(:, i)' / norm(z_c(:, i)) * jac_z_b; % jac z_r 
                 Hx(inds(2), :) = z_c(:, i)' * Rpihalf' / (norm(z_c(:, i))^2) * jac_z_b; % jac z_phi
             
-                % smack on a minus if wrong Hmmmmmm
-                Hm(inds, inds) = -Hx(inds, 1:2); % should be negative of the two first colums of Hx
+                Hm(inds, inds) = -Hx(inds, 1:2);
             end
         
-            % concatenate the H matrix
+            % Concatenate the H matrix
             H = [Hx, Hm];
             
-            % check that it is done correctly, remove for speed
+            % Check that it is done correctly, remove for speed
             if obj.doChecks
-                % TODO: Fix this
                 if norm(H - jacobianFD(@(X) obj.h(X), eta, 1e-5), 'fro') > 1e-3
                     error('some error in meas Jac')
                 end
@@ -167,7 +162,7 @@ classdef EKFSLAM
             n = size(P, 1);
             numLmk = numel(z)/2;
             
-            % allocate
+            % Allocate
             lmnew = zeros(size(z));
             Gx = zeros(numLmk * 2, 3);
             Rall = zeros(numLmk * 2, numLmk * 2);
@@ -175,7 +170,7 @@ classdef EKFSLAM
             Rpsipluspihalf = rotmat2d(eta(3) + pi/2); 
 
             for j = 1:numLmk
-                % find indeces and the relevant measurement
+                % Find indeces and the relevant measurement
                 inds = 2 * (j - 1) + [1, 2];
                 zj = z(inds);
                 
@@ -189,15 +184,15 @@ classdef EKFSLAM
 
             end
             
-            % augment state
+            % Augment state
             etaadded = [eta; lmnew];
             
-            % add covariances
+            % Add covariances
             Padded = blkdiag(P, Gx * P(1:3, 1:3) * Gx' + Rall);
             Padded((n+1):end, 1:n) = Gx*P(1:3, :);
             Padded(1:n, (n+1):end) = P(:, 1:3)*Gx';
 
-            % sanity check, remove for speed
+            % Sanity check, remove for speed
             if obj.doChecks
                 if any(eig(Padded) <= 0) % costly, remove when tested
                     warning('EKFupdate got cov not PSD after adding a landmark');
@@ -207,48 +202,46 @@ classdef EKFSLAM
         
         function [z, zpred, H, S, a] = associate(obj, z, zpred, H, S)
             if obj.doAsso
-                % associate
+                % Associate
                 a = JCBB(z, zpred, S, obj.alpha(1), obj.alpha(2));
 
-                % extract associated measurements
+                % Extract associated measurements
                 zinds = false(size(z));
                 zinds(1:2:end) = a > 0;
                 zinds(2:2:end) = zinds(1:2:end);
                 z = z(zinds);
 
-                % extract and rearange predicted measurements and cov
+                % Extract and rearrange predicted measurements and cov
                 zbarinds = reshape([2*a(a>0) - 1, 2*a(a>0)]', [], 1);
                 zpred = zpred(zbarinds);
                 S = S(zbarinds, zbarinds);
                 H = H(zbarinds, :);
-            % else  % if no association is to be done, assume that all measurements are there and in order
             end
         end
         
         function [etaupd, Pupd, NIS, a] = update(obj, eta, P, z)    
             numLmk = (numel(eta) - 3)/2; % number of landmarks
             if numLmk > 0
-                % prediction and innovation covariance
+                % Prediction and innovation covariance
                 zpred = obj.h(eta);
                 H = obj.H(eta); 
                 S = H * P * H' + kron(eye(numLmk), obj.R); 
                 z = z(:); % vectorize
                 
-                % perform data association if it is asked for
+                % Perform data association if it is asked for
                 [za, zpred, H, S, a] = obj.associate(z, zpred, H, S);
 
-                % create the associated innovation
+                % Create the associated innovation
                 v = za(:) - zpred;
                 v(2:2:end) = wrapToPi(v(2:2:end)); % angles are in [-pi, pi]
 
                 % Kalman update
                 W = P * H' / S; 
-                % W = P * H' * inv(S); 
                 etaupd = eta + W * v; 
                 NIS = v' / S * v; 
                 Pupd = (eye(size(P)) - W * H) * P; 
                 
-                % sanity check, remove for speed
+                % Sanity check, remove for speed
                 if obj.doChecks
                     if any(eig(Pupd) <= 0) % costly, remove when tested
                         warn('EKFupdate got cov not PSD');
@@ -262,17 +255,17 @@ classdef EKFSLAM
                 Pupd = P;
             end
             
-            % create new landmarks if any is available
+            % Create new landmarks if any is available
             if obj.doAsso
                 isNewLmk = (a == 0);
                 if any(isNewLmk)
-                    % extract unassociated measurements
+                    % Extract unassociated measurements
                     zNewInds = false(size(z));
                     zNewInds(1:2:end) = isNewLmk;
                     zNewInds(2:2:end) = isNewLmk;
                     znew = z(zNewInds);
                     
-                    % create new landmarks
+                    % Create new landmarks
                     [etaupd, Pupd] = obj.addLandmarks(eta, P, znew);
                 end
             end  

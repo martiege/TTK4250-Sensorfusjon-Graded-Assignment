@@ -27,8 +27,7 @@ Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found
 
 R = diag([5e-2, 5e-2].^2);
 
-% 1 - chi2cdf([9, 25], 2)
-% [0.0111, 3.7267e-6]
+alpha = 0.05;
 JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
 slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
@@ -47,7 +46,7 @@ mk = 2; % first seems to be a bit off in timing
 gk = 2;
 t = timeOdo(1);
 tic
-N = 15000;
+N = 15000/10;
 
 figure(1); clf;  hold on; grid on; axis equal;
 ax = gca;
@@ -69,7 +68,9 @@ for k = 1:N
         end
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(mk), a{k}] = slam.update(eta, P, z);
-        NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
+        %NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
+        CI(:, mk) = chi2inv([alpha/2; 1 - alpha/2], 2* nnz(a{k}));
+        nnz(a{k})
         xupd(:, mk) = eta(1:3);
         Pupd{mk} = P;
     
