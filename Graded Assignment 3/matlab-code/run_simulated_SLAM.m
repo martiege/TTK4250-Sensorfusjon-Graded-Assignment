@@ -7,13 +7,12 @@ plot_results = true;
 plot_nis = true; 
 plot_movie = false;
 export_plots = false;
+plot_inf_matrix = false; 
 
 %%
-Q = diag([5e-1, 5e-1, 5e-2].^2); 
-R = diag([1.5e-1, 1.5e-1].^2); % diag([1.2e-1, 1.2e-1].^2);
+Q = diag([5e-1, 5e-1, 5e-2].^2); % diag([5e-1, 5e-1, 5e-2].^2); 
+R = diag([1.5e-1, 1.5e-1].^2); 
 doAsso = true;
-% 1 - chi2cdf([9, 25], 2)
-% [0.0111, 3.7267e-6]
 JCBBalphas = [1e-5, 1e-3]; % first is for joint compatibility, second is individual 
 slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), 0);
 
@@ -35,11 +34,11 @@ N = K;
 doAssoPlot = true; % set to true to se the associations that are done
 tic
 for k = 1:N
-    prcdone(k, N, 'Come on and SLAM', 5); 
-    
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
-    figure(13);
-    imagesc(inv(Phat{k}));
+    if plot_inf_matrix
+        figure(13);
+        imagesc(inv(Phat{k}));
+    end
     drawnow;
     
     NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k));

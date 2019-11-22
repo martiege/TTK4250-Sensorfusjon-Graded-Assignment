@@ -27,6 +27,8 @@ Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found
 
 R = diag([5e-2, 5e-2].^2);
 
+% 1 - chi2cdf([9, 25], 2)
+% [0.0111, 3.7267e-6]
 JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
 slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
