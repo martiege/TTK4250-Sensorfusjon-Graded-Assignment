@@ -34,11 +34,13 @@ warning('These consistency intervals have wrong degrees of freedom')
 mk = mk - 1
 
 f = figure(3); clf;
-plot(NIS);
+%plot(NIS);
 hold on;
-plot(1:mk, NIS(1:mk));
-insideCI = mean((CI(1) < NIS) .* (NIS <= CI(2)))*100;
-plot([1, mk], (CI*ones(1, 2))','r--');
+plot(2:mk, NIS(2:mk));
+insideCI = mean((CI_test(1, :) < NIS) .* (NIS <= CI_test(2, :)))*100;
+%plot([1, mk], (CI*ones(1, 2))','r--');
+plot(2:mk, CI_test(1, 2:mk));
+plot(2:mk, CI_test(2, 2:mk));
 title(sprintf('NIS over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
 grid on;
 ylabel('NIS');
