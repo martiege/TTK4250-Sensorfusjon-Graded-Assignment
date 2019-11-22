@@ -80,3 +80,12 @@ gaussCompare = sum(randn(3, numel(NIS)).^2, 1);
 boxplot([NIS', gaussCompare'],'notch','on',...
         'labels',{'NIS','gauss'});
 grid on;
+
+f = figure(5); clf;
+plot(timeIMU(K_start:N) - timeIMU(1), eul(:, K_start:N))
+%xlim([0, 3670]);
+grid on;
+title('Euler angles [deg]')
+if export_plots
+    hgexport(f, 'figures/ga_2_real_bad_heading.eps', style, 'Format', 'eps');
+end

@@ -6,7 +6,7 @@ K_start = 1;
 
 loading_print = true;
 plotting             = true; % plot
-export_plots         = true;
+export_plots         = false;
 
 %% Measurement noise
 % GNSS Position measurement
@@ -17,6 +17,9 @@ p_std_gain = 0.5;
 
 % accelerometer
 g = 9.80665; 
+
+%S_a = eye(3);
+S_g = eye(3);
 
 qA = (1e-4 * g)^2; % accelerometer measurement noise covariance
 qAb = (0.05e-3 * g)^2; % accelerometer bias driving noise covariance

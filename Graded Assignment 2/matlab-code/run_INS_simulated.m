@@ -26,6 +26,9 @@ qG = (6e-4)^2; % gyro measurement noise covariance
 qGb = (1e-6)^2;  % gyro bias driving noise covariance
 pGyro = 1e-8; % gyro bias reciprocal time constant
 
+S_a = eye(3);
+S_g = eye(3);
+
 %% Estimator
 eskf = ESKF(qA, qG, qAb, qGb, pAcc, pGyro);
 eskf.Sa = S_a; % set the accelerometer correction matrix
@@ -41,7 +44,7 @@ Ppred = zeros(15, 15, steps);
 %% initialize
 xpred(1:3, 1) = [0, 0, -5]'; % starting 5 meters above ground
 xpred(4:6, 1) = [20, 0, 0]'; % starting at 20 m/s due north
-xpred(7, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
+xpred(8, 1) = 1; % no initial rotation: nose to north, right to East and belly down.
 
 Ppred(1:3, 1:3, 1) = 1e-3*eye(3); 
 Ppred(4:6, 4:6, 1) = 1e-3*eye(3);
