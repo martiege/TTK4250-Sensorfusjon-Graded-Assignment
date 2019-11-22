@@ -28,7 +28,6 @@ end
 alpha = 0.05;
 ANIS = mean(NIS)
 ACI = chi2inv([alpha/2; 1 - alpha/2], 1)/N % NOT CORRECT NOW
-CI = chi2inv([alpha/2; 1 - alpha/2], 1); % NOT CORRECT NOW
 warning('These consistency intervals have wrong degrees of freedom')
 
 mk = mk - 1
@@ -37,10 +36,10 @@ f = figure(3); clf;
 %plot(NIS);
 hold on;
 plot(3:mk, NIS(3:mk));
-insideCI = mean((CI_test(1, :) < NIS) .* (NIS <= CI_test(2, :)))*100;
+insideCI = mean((CI(1, :) < NIS) .* (NIS <= CI(2, :)))*100;
 %plot([1, mk], (CI*ones(1, 2))','r--');
-plot(3:mk, CI_test(1, 3:mk), 'r--');
-plot(3:mk, CI_test(2, 3:mk), 'r--');
+plot(3:mk, CI(1, 3:mk), 'r--');
+plot(3:mk, CI(2, 3:mk), 'r--');
 title(sprintf('NIS over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
 grid on;
 ylabel('NIS');

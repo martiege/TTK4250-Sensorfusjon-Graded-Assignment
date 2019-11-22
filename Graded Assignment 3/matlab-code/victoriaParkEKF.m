@@ -70,7 +70,7 @@ for k = 1:N
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(mk), a{k}] = slam.update(eta, P, z);
         %NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
-        CI_test(:, mk) = chi2inv([alpha/2; 1 - alpha/2], nnz(a{k}));
+        CI(:, mk) = chi2inv([alpha/2; 1 - alpha/2], 2* nnz(a{k}));
         nnz(a{k})
         xupd(:, mk) = eta(1:3);
         Pupd{mk} = P;
