@@ -11,7 +11,7 @@ mK = numel(timeLsr);
 gK = numel(timeGps);
 
 do_plots = true;
-export_plots = true;
+export_plots = false;
 
 %% Parameters
 % the car parameters
@@ -28,7 +28,7 @@ Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found
 R = diag([5e-2, 5e-3].^2);
 
 alpha = 0.05;
-JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
+JCBBalphas = [1e-3, 1e-3]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
 slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
 
@@ -46,7 +46,7 @@ mk = 2; % first seems to be a bit off in timing
 gk = 2;
 t = timeOdo(1);
 tic
-N = 15000;
+N = 15000/3;
 
 figure(1); clf;  hold on; grid on; axis equal;
 ax = gca;
