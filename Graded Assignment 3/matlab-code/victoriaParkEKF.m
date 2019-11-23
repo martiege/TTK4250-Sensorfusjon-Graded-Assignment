@@ -46,7 +46,7 @@ mk = 2; % first seems to be a bit off in timing
 gk = 2;
 t = timeOdo(1);
 tic
-N = 15000/3;
+N = 15000;
 
 figure(1); clf;  hold on; grid on; axis equal;
 ax = gca;

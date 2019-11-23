@@ -9,6 +9,7 @@ style.FixedFontSize = 12;
 
 set(0,'DefaultAxesColorOrder',cbrewer('qual','Set2',3))
 set(0,'DefaultLineLineWidth',1.2)  
+set(0,'DefaultFigureColormap','default');     
 
 %% 
 R = rotmat2d(-30*pi/180);
@@ -44,6 +45,24 @@ ylabel('NIS');
 xlabel('time');
 if export_plots
     hgexport(f,'figures/ga_3_real_NIS.eps',style,'Format','eps');
+end
+
+f = figure(10); clf;
+subplot(1,2,1);
+imagesc(Pupd{mk});
+%axis equal;
+title('Final covariance matrix');
+
+subplot(1,2,2);
+imagesc(inv(Pupd{mk}));
+%axis equal;
+title('Final information matrix');
+colormap('default')
+
+%colormap(cbrewer('seq','YlOrRd',128)); 
+
+if export_plots
+    hgexport(f,'figures/ga_3_real_P.eps',style,'Format','eps');
 end
 
 

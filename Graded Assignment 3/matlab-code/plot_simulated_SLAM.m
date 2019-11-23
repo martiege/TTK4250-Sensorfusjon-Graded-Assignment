@@ -67,8 +67,23 @@ if plot_nis
     end
 end
 
-figure(10);
-plot(RMSE);
+f = figure(10); clf;
+subplot(1,2,1);
+imagesc(Phat{N});
+%axis equal;
+title('Final covariance matrix');
+
+subplot(1,2,2);
+imagesc(inv(Phat{N}));
+%axis equal;
+title('Final information matrix');
+
+colormap(cbrewer('seq','YlGnBu',64)); 
+
+if export_plots
+    hgexport(f,'figures/ga_3_sim_P.eps',style,'Format','eps');
+end
+
 
 %% run a movie
 if plot_movie

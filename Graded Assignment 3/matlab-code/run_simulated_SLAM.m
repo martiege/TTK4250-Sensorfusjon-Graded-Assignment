@@ -6,7 +6,7 @@ plot_asso = false;
 plot_results = true;
 plot_nis = true; 
 plot_movie = false;
-export_plots = true;
+export_plots = false;
 plot_info_matrix = false; 
 
 do_slam_checks = false; 
@@ -36,14 +36,12 @@ N = K;
 doAssoPlot = true; % set to true to se the associations that are done
 tic
 for k = 1:N
-    k
-    
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
     if plot_info_matrix
         figure(13);
         imagesc(inv(Phat{k}));
+        drawnow;
     end
-    drawnow;
     
     NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k));
     RMSE(k) = sqrt(sum((xhat{k}(1:2) - poseGT(1:2, k)).^2, 1));
