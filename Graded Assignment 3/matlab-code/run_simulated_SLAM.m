@@ -6,14 +6,14 @@ plot_asso = false;
 plot_results = true;
 plot_nis = true; 
 plot_movie = false;
-export_plots = false;
-plot_info_matrix = false; 
+export_plots = true;
+plot_info_matrix = true; 
 
 do_slam_checks = false; 
 
 %%
-Q = diag([1e-2, 1e-2, 6e-3].^2); 
-R = diag([5.75e-2, 5.75e-2].^2); 
+Q = diag([1e-1, 1e-1, 1e-2].^2); 
+R = diag([4e-2, 2e-2].^2); 
 doAsso = true;
 JCBBalphas = [1e-10, 1e-5]; % first is for joint compatibility, second is individual 
 slam = EKFSLAM(Q, R, doAsso, JCBBalphas, zeros(2, 1), do_slam_checks);
@@ -39,12 +39,12 @@ for k = 1:N
     [xhat{k}, Phat{k}, NIS(k), a{k}] =  slam.update(xpred{k}, Ppred{k}, z{k});
     if plot_info_matrix
         figure(13);
-        imagesc(inv(Phat{k}));
+        imagesc((Phat{k}));
         drawnow;
     end
     
     NEESpose(k) = ((xhat{k}(1:3) - poseGT(:, k))' / Phat{k}(1:3, 1:3)) * (xhat{k}(1:3) - poseGT(:, k));
-    RMSE(k) = sqrt(sum((xhat{k}(1:2) - poseGT(1:2, k)).^2, 1));
+    %RMSE(k) = sqrt(sum((xhat{k}(1:2) - poseGT(1:2, k)).^2, 1));
     if k < K
         [xpred{k + 1}, Ppred{k + 1}] = slam.predict(xhat{k}, Phat{k}, odometry(:, k));
     end
