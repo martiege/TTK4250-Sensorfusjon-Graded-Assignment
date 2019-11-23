@@ -8,6 +8,8 @@ An extended Kalman filter was implemented for solving the SLAM problem in MATLAB
 
 \subsection{EKF-SLAM on simulated vehicle data set}
 
+The individual compatibility $\alpha$-value is used as the validation gate for the landmarks. Any measurements outside the validation gate would not be considered. For the individual compatibility found for the simulated data, $\alpha = \SI{1e-3}{}$, which gives a validation gate $\approx \SI{3.7}{}^2$. The joint compatibility $\alpha$-value, on the other hand, is used for gating the NIS-value for 
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/ga_3/sim_trajectory.eps}
