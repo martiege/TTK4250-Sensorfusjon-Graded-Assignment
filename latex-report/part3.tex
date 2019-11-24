@@ -84,6 +84,8 @@ One should also note the much higher compatibility alphas compared to the simula
 % discuss EKF-SLAM assumptions.
 % Discuss performance of EKF-SLAM. Why it sucks ass - fucked consistency and time scales with n^2 as we find more and more landmarks. Memory, quadratic scaling -> scales badly. Improvements, alternatives? Could decompose map into smaller independent maps? Robo-centric formulation? See book stuff. Different algorithms e.g. particle filter or graph-based approaches. 
 
+\subsection{EKF-SLAM discussion}
+
 When considering the performance of EKF-SLAM in these tests, one could argue that the performance is satisfactory, but several limitations are evident in the results. The first limitation, which applies to SLAM in general, is the fact that the estimated pose and landmark positions are only local estimates. While it is most important for the robot or vehicle to know its location relative to the environment, one can imagine several applications where global estimates are needed and this algorithm not being sufficient. One could remedy this by adding additional sensors to the system like a magnetometer, or simply making sure to initialize the system in the global frame. 
 
 Another limitation is poor consistency, as a result of the fact that we are using an EKF. For the simulated data set the NEES did not evolve to be too large over time, but never the less it is a valid concern that the EKF will be too confident over time\cite{ekfslam}. One improvement to this is to formulate the EKF equations in a robocentric view. Alternatively, particle filter approaches or nonlinear observer theory can be used instead. 

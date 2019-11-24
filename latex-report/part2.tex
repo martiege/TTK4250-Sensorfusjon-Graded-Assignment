@@ -124,6 +124,8 @@ Now notice that $S_g \approx R_z(-\frac{\pi}{2}), S_a \approx R_z(-\frac{\pi}{2}
 
 % discuss assumptions, linearity, convergence - knowing initial values? Robustness
 
+\subsection{ESKF discussion}
+
 One could argue that the benefits of the ESKF are twofold. Firstly, since the error dynamics are approximately linear, the optimality of the linear Kalman filter, which is lost when extending it to non-linear process and measurement models with the EKF, are (approximately) retained. Secondly, since the IMU is treated as a control input and the IMU biases are estimated, we achieve robustness, as has previously been discussed. In the test implementations in this assignment, with both simulated and real data sets, this has been observed. By masking modelling errors, sensor errors, uncertainties and actual sensor biases within these states, the filter system is able to operate in a dynamic environment where the plant performs various different manoeuvres, even with wind disturbance and temperature fluctuations.
 
 One could argue that the main limitation of the ESKF for inertial navigation is its slow convergence for deficient initial attitude values. In these tests of the filter, this has not been an issue, as good initial values were provided. One should note that this is not always the case. In many real-time applications, you cannot expect to turn on your INS and have good initial estimates of the attitude. If one tries to give an arbitrary attitude initialization to the ESKF, one observes poor estimates that are not at all usable. Due to length limitations this cannot be further explored here, but nevertheless this is a problem that could be further analysed and extensions to the ESKF could be added to handle this e.g. with optimization methods.
