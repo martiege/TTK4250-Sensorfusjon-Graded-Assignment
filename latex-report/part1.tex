@@ -17,6 +17,7 @@ The IMM was tuned using the transition matrix $\pi$, which was tuned as \cref{eq
 \end{equation}
 
 \begin{figure}[ht]
+    \centering
     \begin{subfigure}[h]{0.4\textwidth}
         \includegraphics[width=\textwidth]{figures/ga_1/2_estimated_trajectory}
         \caption{Trajectory for simulated data}
@@ -35,6 +36,7 @@ The IMM was tuned using the transition matrix $\pi$, which was tuned as \cref{eq
 Finally, for the IMM-PDAF, the clutter rate $\lambda$, detection probability $P_D$ and the validation gate were tuned. The clutter rate was tuned to $\lambda = \SI{1e-4}{}$, and as there were very few false alarms, this could be chosen as a low value. Furthermore, as the only place the clutter rate is used in the IMM-PDAF is to scale the probability of no detection, there was really no use further decreasing $\lambda$, as it already would put the association likelihood ratio for no detection very low. The detection probability is tuned to be rather high, with $P_D = 0.95$, as it is expected that there is a good chance of detection for this data set. A validation gate size of $5^2$ seemed also to give decent results. Increasing it would generally not make the tracker worse overall, but would increase the magnitude of certain errors, which would then spike. Decreasing it would of course make it more difficult for any measurements to be gated, such that this value seemed to be the best compromise between gating all and no measurements. The resulting consistency plot can be seen as \cref{fig:ga_1_2_NEES}, and the average NEES were for position $1.9248$, for velocity $1.1427$ and overall $3.0887$. The errors seem generally ok, and limited in amplitude, as seen from \cref{fig:ga_1_2_error}. 
 
 \begin{figure}[ht]
+    \centering
 	\begin{subfigure}[h]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_1/2_NEES}
 		\caption{NEES for simulated data}
@@ -67,6 +69,7 @@ As for the IMM used in the simulated data set, the transition matrix $\pi$ was t
 \end{equation}
 
 \begin{figure}[ht]
+    \centering
     \begin{subfigure}[h]{0.4\textwidth}
         \includegraphics[width=\textwidth]{figures/ga_1/joyride_estimated_trajectory}
         \caption{Trajectory for joyride data}
@@ -87,6 +90,7 @@ The IMM-PDAF was tuned to have a lower clutter rate and higher detection probabi
 The resulting consistency plot can be seen \cref{fig:ga_1_joyride_NEES}, and the average NEESes were found as $1.6653$ for position, $1.3966$ for velocity and $3.4346$ overall. Both the plots and the averages tend to be closer to the lower bound of the confidence interval, though as can be noted, there were certain spikes in the plot. These were difficult to handle as they seemed to originate from especially bad measurements, and a compromise was made where the consistency would tend to be low, in exchange for limiting the spikes. The errors also seemed to be acceptable, see \cref{fig:ga_1_joyride_error}. 
 
 \begin{figure}[ht]
+    \centering
 	\begin{subfigure}[h]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_1/joyride_NEES}
 		\caption{NEES for joyride data}

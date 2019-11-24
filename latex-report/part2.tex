@@ -39,18 +39,18 @@ The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, th
 
 \begin{figure}[ht]
     \centering
-	\begin{subfigure}[b]{0.45\textwidth}
+	\begin{subfigure}[b]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/sim_trajectory.eps}
     \caption{Estimated UAV trajectory}
     \label{fig:ga_2_sim_trajectory}
 	\end{subfigure}%
        ~
-	\begin{subfigure}[b]{0.45\textwidth}
+	\begin{subfigure}[b]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/sim_consistency.eps}
     \caption{UAV ESKF consistency analysis}
     \label{fig:ga_2_sim_consistency}
     \end{subfigure}
-    \caption{}
+    \caption{Estimated UAV trajectory and consistency analysis}
     \label{fig:ga_2_sim_trajectory_consistency} 
 \end{figure}
 
@@ -77,12 +77,12 @@ The resulting UAV trajectory estimate is presented in \cref{fig:ga_2_real_trajec
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/real_trajectory.eps}
         \caption{Estimated UAV trajectory}
         \label{fig:ga_2_real_trajectory}
 	\end{subfigure}%
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.4\textwidth}
 		\includegraphics[width=\textwidth]{figures/ga_2/real_state.eps}
         \caption{UAV ESKF states}
         \label{fig:ga_2_real_state}
@@ -93,7 +93,7 @@ The resulting UAV trajectory estimate is presented in \cref{fig:ga_2_real_trajec
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/ga_2/real_consistency.eps}
+    \includegraphics[width=0.7\linewidth]{figures/ga_2/real_consistency.eps}
     \caption{UAV GNSS logarithmic NIS}
     \label{fig:ga_2_real_consistency}
 \end{figure}
@@ -117,7 +117,7 @@ Now notice that $S_g \approx R_z(-\frac{\pi}{2}), S_a \approx R_z(-\frac{\pi}{2}
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/ga_2/real_bad_heading.eps}
+    \includegraphics[width=0.6\linewidth]{figures/ga_2/real_bad_heading.eps}
     \caption{UAV estimated attitude without sensor error correction}
     \label{fig:ga_2_real_bad}
 \end{figure}
