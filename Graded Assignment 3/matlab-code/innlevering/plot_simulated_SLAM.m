@@ -45,15 +45,13 @@ alpha = 0.05;
 ANIS = mean(NIS)
 ACI = chi2inv([alpha/2; 1 - alpha/2], 1)/N % NOT CORRECT NOW
 CI = zeros(2, N); % chi2inv([alpha/2; 1 - alpha/2], 1); % NOT CORRECT NOW
-CI_NEES = chi2inv([alpha/2; 1 - alpha/2], 3);
 warning('These consistency intervals have wrong degrees of freedom')
 for i = 1:N
-    CI(:, i) = chi2inv([alpha/2; 1 - alpha/2], 2 * nnz(a{i}));
+    CI(:, i) = chi2inv([alpha/2; 1 - alpha/2], 2 * nnz(a{i})); 
 end
 
 if plot_nis
     f = figure(5); clf;
-    subplot(1, 2, 1);
     hold on;
     plot(1:N, NIS(1:N));
     insideCI = mean((CI(1, :) < NIS) .* (NIS <= CI(2, :)))*100;
@@ -64,38 +62,13 @@ if plot_nis
     ylabel('NIS');
     xlabel('time');
     
-    subplot(1, 2, 2);
-    hold on;
-    plot(1:N, NEESpose(1:N));
-    insideCI = mean((CI_NEES(1, :) < NEESpose) .* (NEESpose <= CI_NEES(2, :)))*100;
-    plot([0, N], (CI_NEES*ones(1,2))', 'r--');
-    title(sprintf('NEES over time, with %0.1f%% inside %0.1f%% CI', insideCI, (1-alpha)*100));
-    grid on;
-    ylabel('NEES');
-    xlabel('time');
-    
     if export_plots
         hgexport(f,'figures/ga_3_sim_NIS.eps',style,'Format','eps');
     end
 end
 
-f = figure(10); clf;
-subplot(1,2,1);
-imagesc(Phat{N});
-%axis equal;
-title('Final covariance matrix');
-
-subplot(1,2,2);
-imagesc(inv(Phat{N}));
-%axis equal;
-title('Final information matrix');
-
-colormap(cbrewer('seq','YlGnBu',64)); 
-
-if export_plots
-    hgexport(f,'figures/ga_3_sim_P.eps',style,'Format','eps');
-end
-
+figure(10);
+plot(RMSE);
 
 %% run a movie
 if plot_movie

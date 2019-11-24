@@ -11,7 +11,7 @@ mK = numel(timeLsr);
 gK = numel(timeGps);
 
 do_plots = true;
-export_plots = true;
+export_plots = false;
 
 %% Parameters
 % the car parameters
@@ -25,9 +25,10 @@ sigmas = [5e-1, 5e-1, 5e-2];
 CorrCoeff = [1, 0, 0; 0, 1, 0.9; 0, 0.9, 1];
 Q = diag(sigmas) * CorrCoeff * diag(sigmas); % (a bit at least) emprically found, feel free to change
 
-R = diag([5e-2, 5e-2].^2);
+R = diag([5e-2, 5e-3].^2);
 
-JCBBalphas = [1e-5, 1e-5]; % first is for joint compatibility, second is individual 
+alpha = 0.05;
+JCBBalphas = [1e-3, 1e-3]; % first is for joint compatibility, second is individual 
 sensorOffset = [car.a + car.L; car.b];
 slam = EKFSLAM(Q, R, true, JCBBalphas, sensorOffset);
 
@@ -37,7 +38,7 @@ a = cell(1, mK);
 lmk = cell(1, mK);
 
 % initialize TWEAK THESE TO BETTER BE ABLE TO COMPARE TO GPS
-eta = [Lo_m(1); La_m(2); 38 * pi / 180]; % set the start to be relatable to GPS. 
+eta = [Lo_m(1); La_m(2); 28 * pi / 180]; % set the start to be relatable to GPS. 
 P = zeros(3,3); % we say that we start knowing where we are in our own local coordinates
 Pupd = cell(1, mK);
 
@@ -67,7 +68,8 @@ for k = 1:N
         end
         z = detectTreesI16(LASER(mk,:));
         [eta, P, NIS(mk), a{k}] = slam.update(eta, P, z);
-        NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
+        %NIS(mk) = NIS(mk) / size(eta, 1); % scale NIS by dimension in order to better compare over time
+        CI(:, mk) = chi2inv([alpha/2; 1 - alpha/2], 2* nnz(a{k}));
         xupd(:, mk) = eta(1:3);
         Pupd{mk} = P;
     
