@@ -15,6 +15,8 @@ The EKF-SLAM was first tuned using a simulated vehicle data set. The odometer me
 
 The system was tuned by trying to minimize the errors in pose and landmark estimates, while also looking at the calculated total NIS and NEES in pose. Note that in the NIS case the confidence interval was calculated at each time step, using the size of the current innovation as the number of degrees of freedom in the $\chi^2$ distribution. The estimated pose trajectory and landmark positions are presented in \cref{fig:ga_3_sim_trajectory}, and the consistency analysis plots are presented in \cref{fig:ga_3_sim_NIS}. We observe that 90\% of the NIS is inside the calculated the confidence interval, while 94.6\% of the NEES is inside the confidence intervals.
 
+When tuning the $\alpha$-values for the JCBB, the interpretation of these values are important. The individual compatibility $\alpha$-value is used as the validation gate for the landmarks. Any measurements outside the validation gate would not be considered. For the individual compatibility found for the simulated data, $\alpha = \SI{1e-3}{}$, which gives a validation gate $\approx \SI{3.7}{}^2$. The joint compatibility $\alpha$-value, on the other hand, is used for gating the NIS-value for 
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/ga_3/sim_trajectory.eps}
