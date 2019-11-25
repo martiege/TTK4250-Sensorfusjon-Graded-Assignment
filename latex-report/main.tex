@@ -7,7 +7,23 @@
 \usepackage{kyblab} % Contains all included packages. See kyblab.sty.
 \addbibresource{bibliography.bib} % Makes the bibliography file available to biblatex.
 
-\geometry{margin=3cm}
+\geometry{margin=2.5cm}
+\makeglossaries
+
+\newacronym{slam}{SLAM}{Simultaneous Localisation and Mapping}
+\newacronym{imm_pdaf}{IMM-PDAF}{Interacting Multiple Models - Probabilistic Data Association Filter}
+\newacronym{ekf_slam}{EKF-SLAM}{Extended Kalman Filter - Simultaneous Localisation and Mapping}
+\newacronym{eskf}{ESKF}{Error State Kalman Filter}
+\newacronym{imm}{IMM}{Interacting Multiple Models}
+\newacronym{imu}{IMU}{Inertial Measurement Unit}
+\newacronym{gnss}{GNSS}{Global Navigation Satellite Systems}
+\newacronym{rmse}{RMSE}{Root-Mean-Square Error}
+\newacronym{nis}{NIS}{Normalised Innovations Squared}
+\newacronym{nees}{NEES}{Normalised Estimation Error Squared}
+\newacronym{pdaf}{PDAF}{Probabilistic Data Association Filter}
+\newacronym{ct}{CT}{Constant Turn-Rate}
+\newacronym{cv}{CV}{Constant Velocity}
+\newacronym{jcbb}{JCBB}{Joint Compatibility Branch and Bound}
 
 \begin{document}
 
@@ -47,10 +63,16 @@
 % \input simply inserts the contents of the file, while \include forces a \newpage.
 % See \input vs. \include: http://tex.stackexchange.com/questions/246/when-should-i-use-input-vs-include
 
+%\clearpage
+% \addcontentsline{toc}{section}{Acronyms}
+
+% \label{sec:acronyms}
+
 % References
 \newpage
 \addcontentsline{toc}{section}{References}
 \printbibliography{}
+\printglossary[type=\acronymtype]
 \label{sec:bibliography}
 
 \end{document}

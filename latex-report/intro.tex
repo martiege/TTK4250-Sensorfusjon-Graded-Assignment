@@ -1,4 +1,16 @@
 \section{Introduction}\label{sec:intro}
+
+
+This report contains the results and discussions around the implementation and testing of the tracking method \acrfull{imm_pdaf}, the navigation method ESKF and the SLAM method \acrfull{ekf_slam}. The underlying techniques used were based in the theory of the Kalman Filter, though each of course have their own specialised implementation for their specific tasks. 
+
+The first assignment is concerned with the tracking method \acrshort{imm_pdaf}, which is based on implementing multiple models for the same target, and then using the model which currently seems \textit{best} to describe the target, and use this information to track it. 
+
+The second assignment is an implementation of the navigation method \acrshort{eskf}. It predicts the state estimate of the vessel using \acrfull{imu} measurements, and then corrects the estimate using a \acrfull{gnss} measurement when available. This, together with a good bias model for the \acrshort{imu} measurements, can give very robust state estimates. 
+
+Finally, the third assignment is an implementation of the \acrshort{slam} method \acrshort{ekf_slam}. This method is both trying to locate the robot and map the landmarks around itself, by considering both \acrshort{imu} measurements and odometry. As the robots movements and the relative position of the landmarks would logically be very correlated, this can be used to estimate both location and mapping. 
+
+All the assignments are organized such that the tuning and results are discussed separately for the different data sets, as well as some comparison between the data sets. There are also some comments and considerations of the methods implemented. Methods that were used to help the tuning process include \acrfull{rmse}, \acrfull{nis} and \acrfull{nees}, and were used where available.
+
 % Overview and perspective
 
 % Introduce the assignments
