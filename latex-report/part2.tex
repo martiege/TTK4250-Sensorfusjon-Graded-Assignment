@@ -2,7 +2,7 @@
 
 % A full answer and result analysis is expected for task 3 and 4. For task 3 you should include a plot of the different states over time as well as the error states for your choice of parameters, in addition to NEES and NIS over time for the same set of parameters. In task 4 the same plots are expected, of course excluding anything that needs the ground truth. For both tasks it should be made clear why the parameters were chosen in terms of error metrics, consistency and overall result. Answers and analysis should connect theory and results to the real world, and show your understanding for the problem and solution. Try to connect the reuslts on the simulated data to the results of the real data where it is possible. 
 
-An \acrfull{eskf} for a \acrshort{gnss}-aided fixed-wing UAV was implemented in MATLAB. The implementation is based on the standard formulation in \cite{Sola}. But most notably, \acrshort{imu} sensor correction matrices has been added to counteract any mounting errors, scaling errors and orthogonality errors in the accelerometer and rate gyro. Furthermore, lever arm compensation for the \acrshort{gnss} receiver is also implemented.
+An \acrfull{eskf} for a \acrshort{gnss}-aided fixed-wing UAV was implemented in MATLAB. The implementation is based on the standard formulation in \cite{Sola}. Most notably, \acrshort{imu} sensor correction matrices has been added to counteract any mounting errors, scaling errors and orthogonality errors in the accelerometer and rate gyro. Furthermore, lever arm compensation for the \acrshort{gnss} receiver is also implemented.
 
 \subsection{INS for simulated fixed-wing UAV}
 
@@ -16,7 +16,7 @@ An \acrfull{eskf} for a \acrshort{gnss}-aided fixed-wing UAV was implemented in 
 
 The \acrshort{eskf} was first tuned to a simulated data set. The \acrshort{gnss} measurement standard deviation was tuned to $0.4$ in each degree of freedom. The measurement noise covariance is therefore $R=0.16 I ^2$. For the accelerometer the measurement noise covariance and bias driving noise covariance was tuned to be $q_{a} = (\SI{4e-2})^2$ and $ q_{ab} = (\SI{1e-3})^2$ respectively. Similarly for the rate gyro the measurement noise covariance and bias driving noise covariance was tuned to be $q_{\omega} = (\SI{8e-4})^2$ and $q_{\omega b} = (\SI{1e-6})^2$ respectively. Finally the time constants in the Gauss-Markov bias processes were both tuned to be $T_b = \SI{1e8}{s}$.
 
-Firstly, the tuning was based on common sense. For instance the \acrshort{gnss} measurement covariance was initially based on a reasonable guess from a physical perspective and then more thoroughly tuned. This more thorough tuning was based on calculating and plotting the errors in position, velocity, attitude and bias. Furthermore the corresponding \acrshort{nees} in position, velocity, attitude and biases, as well as the overall \acrshort{nees} and \acrshort{nis} was calculated and analysed during the tuning process. 
+Initially, the tuning was based on common sense. For instance the \acrshort{gnss} measurement covariance was initially based on a reasonable guess from a physical perspective and then more thoroughly tuned. This more thorough tuning was based on calculating and plotting the errors in position, velocity, attitude and bias. Furthermore the corresponding \acrshort{nees} in position, velocity, attitude and biases, as well as the overall \acrshort{nees} and \acrshort{nis} was calculated and analysed during the tuning process. 
 
 The resulting position estimate is plotted in \cref{fig:ga_2_sim_trajectory}, the state and state errors are presented in \cref{fig:ga_2_sim_state} and \cref{fig:ga_2_sim_errors} and finally the consistency analysis is presented in \cref{fig:ga_2_sim_consistency}. Note that the consistency figures are presented in logarithmic scale. Furthermore, the average \acrshort{nees} and \acrshort{nis} is approximately 18.57 and 2.27 respectively.
 
@@ -124,7 +124,7 @@ Now notice that $S_g \approx R_z(-\frac{\pi}{2}), S_a \approx R_z(-\frac{\pi}{2}
 
 % discuss assumptions, linearity, convergence - knowing initial values? Robustness
 
-\subsection{\acrshort{eskf} discussion}
+\subsection{ESKF discussion}
 
 One could argue that the benefits of the \acrshort{eskf} are twofold. Firstly, since the error states are always small, the error dynamics can safely be approximately as linear since the higher order terms are small. Then the optimality of the linear Kalman filter, which is lost when extending it to non-linear process and measurement models with the EKF, is (approximately) retained. Secondly, we avoid singularity issues with gimbal lock using the attitude quaternion formulation. Lastly, since the \acrshort{imu} is treated as a control input and the \acrshort{imu} biases are estimated, we achieve robustness, as has previously been discussed. In the test implementations in this assignment, with both simulated and real data sets, this has been observed. By masking modelling errors, sensor errors, uncertainties and actual sensor biases within these states, the filter system is able to operate in a dynamic environment where the plant performs various different manoeuvres, even with wind disturbance and temperature fluctuations.
 
